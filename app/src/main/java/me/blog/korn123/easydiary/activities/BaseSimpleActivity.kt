@@ -5,9 +5,12 @@ import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import me.blog.korn123.easydiary.extensions.config
 import me.blog.korn123.easydiary.extensions.getPermissionString
 import me.blog.korn123.easydiary.extensions.getThemeId
@@ -38,6 +41,7 @@ open class BaseSimpleActivity : AppCompatActivity() {
      *
      ***************************************************************************************************/
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         if (useDynamicTheme) {
             setTheme(getThemeId())
 //            setTheme(R.style.AppTheme_AAF)

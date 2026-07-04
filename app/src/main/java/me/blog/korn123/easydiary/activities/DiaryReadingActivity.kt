@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.fragment.app.viewModels
@@ -219,6 +220,12 @@ class DiaryReadingActivity : EasyDiaryActivity() {
             if (this is PlaceholderFragment) {
                 if (this.isAdded) this.initContents()
             }
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.diaryViewPager) { v, insets ->
+            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            v.updatePadding(bottom = navigationBars.bottom)
+            insets
         }
     }
 
@@ -1202,10 +1209,21 @@ class DiaryReadingActivity : EasyDiaryActivity() {
             var index: Int,
         ) : View.OnClickListener {
             override fun onClick(v: View) {
-                val photoViewPager = Intent(context, PhotoViewPagerActivity::class.java)
-                photoViewPager.putExtra(DIARY_SEQUENCE, diarySequence)
-                photoViewPager.putExtra(DIARY_ATTACH_PHOTO_INDEX, index)
-                TransitionHelper.startActivityWithTransition(activity, photoViewPager, TransitionConstants.BOTTOM_TO_TOP)
+                val diary = me.blog.korn123.easydiary.helper.EasyDiaryDbHelper.findDiaryBy(diarySequence)
+                val photoUri = diary?.photoUris?.get(index)
+                val mimeType = photoUri?.mimeType ?: ""
+                if (mimeType.startsWith("video") || mimeType.startsWith("audio")) {
+                    val path = photoUri?.photoUri?.removePrefix(me.blog.korn123.easydiary.helper.FILE_URI_PREFIX) ?: return
+                    val intent = Intent(context, MediaViewerActivity::class.java)
+                    intent.putExtra("path", path)
+                    intent.putExtra("mimeType", mimeType)
+                    startActivity(intent)
+                } else {
+                    val photoViewPager = Intent(context, PhotoViewPagerActivity::class.java)
+                    photoViewPager.putExtra(me.blog.korn123.easydiary.helper.DIARY_SEQUENCE, diarySequence)
+                    photoViewPager.putExtra(me.blog.korn123.easydiary.helper.DIARY_ATTACH_PHOTO_INDEX, index)
+                    me.blog.korn123.easydiary.helper.TransitionHelper.startActivityWithTransition(activity, photoViewPager, me.blog.korn123.easydiary.helper.TransitionConstants.BOTTOM_TO_TOP)
+                }
             }
         }
     }

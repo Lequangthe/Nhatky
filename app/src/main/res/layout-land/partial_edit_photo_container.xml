@@ -34,6 +34,22 @@
                 android:src="@drawable/ic_camera_4"
                 android:layout_width="50dp"
                 android:layout_height="50dp" />
+            <ImageView
+                android:id="@+id/recordAudio"
+                android:contentDescription="@string/record_audio"
+                android:scaleType="center"
+                android:background="@drawable/bg_card_thumbnail"
+                android:src="@drawable/ic_mic"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+            <ImageView
+                android:id="@+id/recordVideo"
+                android:contentDescription="@string/record_video"
+                android:scaleType="center"
+                android:background="@drawable/bg_card_thumbnail"
+                android:src="@drawable/ic_videocam"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

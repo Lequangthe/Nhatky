@@ -8,6 +8,8 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.DialogInterface
+import me.blog.korn123.easydiary.databinding.ActivityBaseDevBinding
+import me.blog.korn123.easydiary.helper.DEV_SYNC_MARKDOWN_ALL
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -320,22 +322,10 @@ fun Activity.getDisplayMetrics(): DisplayMetrics {
  * 코드에서 직접 처리해야 함
  */
 fun Activity.applyHorizontalInsets() {
-    if (isVanillaIceCreamPlus() && isLandScape()) {
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_holder)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val layoutParams = v.layoutParams
-            if (layoutParams is ViewGroup.MarginLayoutParams) {
-                layoutParams.rightMargin = systemBars.right
-                layoutParams.leftMargin = systemBars.left
-                v.layoutParams = layoutParams
-            }
-            insets
-        }
-        ViewCompat.requestApplyInsets(findViewById(R.id.main_holder))
-
-        val dashboardContainer = findViewById<View>(R.id.dashboard_container)
-        if (dashboardContainer == null) {
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.app_bar)) { v, insets ->
+    if (isLandScape()) {
+        val rootHolder = findViewById<View>(R.id.main_holder)
+        if (rootHolder != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootHolder) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 val layoutParams = v.layoutParams
                 if (layoutParams is ViewGroup.MarginLayoutParams) {
@@ -345,7 +335,25 @@ fun Activity.applyHorizontalInsets() {
                 }
                 insets
             }
-            ViewCompat.requestApplyInsets(findViewById(R.id.app_bar))
+            ViewCompat.requestApplyInsets(rootHolder)
+        }
+
+        val dashboardContainer = findViewById<View>(R.id.dashboard_container)
+        if (dashboardContainer == null) {
+            val appBar = findViewById<View>(R.id.app_bar)
+            if (appBar != null) {
+                ViewCompat.setOnApplyWindowInsetsListener(appBar) { v, insets ->
+                    val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    val layoutParams = v.layoutParams
+                    if (layoutParams is ViewGroup.MarginLayoutParams) {
+                        layoutParams.rightMargin = systemBars.right
+                        layoutParams.leftMargin = systemBars.left
+                        v.layoutParams = layoutParams
+                    }
+                    insets
+                }
+                ViewCompat.requestApplyInsets(appBar)
+            }
         }
     }
 }
@@ -369,22 +377,19 @@ fun Activity.applyBottomNavigationInsets(view: View) {
 }
 
 /**
- * Version SDK 35 이상의 경우 IME 영역의 인셋을 적용함
- * IME 영역은 키보드가 올라올 때 화면 하단에 나타나는 영역으로, 이 영역의 높이만큼
- * 파라미터로 넘겨받은 뷰의 하단 마진을 조정함
+ * Version SDK 35 이상의 경우 IME 및 Navigation Bar 영역의 인셋을 적용함
  * 이 기능은 세로화면 모드에서만 적용되며, 가로화면 모드에서는 적용되지 않음
  */
-fun Activity.applyBottomImeInsets(view: View) {
-    if (isVanillaIceCreamPlus() && !isLandScape()) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-            val layoutParams = v.layoutParams
-            if (layoutParams is ViewGroup.MarginLayoutParams) {
-                layoutParams.bottomMargin = ime.bottom
-                v.layoutParams = layoutParams
-            }
-            insets
+fun Activity.applyBottomInsets(view: View) {
+    ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+        val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+        val layoutParams = v.layoutParams
+        if (layoutParams is ViewGroup.MarginLayoutParams) {
+            layoutParams.bottomMargin = Math.max(systemBars.bottom, ime.bottom)
+            v.layoutParams = layoutParams
         }
+        insets
     }
 }
 
@@ -437,10 +442,13 @@ fun Activity.updateStatusBarAppearance(checkColor: Int = config.primaryColor) {
 }
 
 fun Activity.updateNavigationBarAppearance(checkColor: Int = config.primaryColor) {
-    val color =
-        if (isColorLight(checkColor)) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black
-
-    window.navigationBarColor = color.toArgb()
+    if (isVanillaIceCreamPlus()) {
+        window.navigationBarColor = Color.TRANSPARENT
+    } else {
+        val color =
+            if (isColorLight(checkColor)) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black
+        window.navigationBarColor = color.toArgb()
+    }
 
     WindowCompat.getInsetsController(window, window.decorView).apply {
         isAppearanceLightNavigationBars = isColorLight(checkColor)
@@ -1300,4 +1308,14 @@ fun Activity.hideSoftInputFromWindow() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentView.windowToken, 0)
     }
+}
+
+fun Activity.pushMarkDown(path: String, contents: String) {}
+
+fun Activity.syncMarkDown(mBinding: ActivityBaseDevBinding? = null, syncMode: String = DEV_SYNC_MARKDOWN_ALL, onComplete: () -> Unit = {}) {
+    onComplete()
+}
+
+fun Activity.startReviewFlow() {
+    config.appExecutionCount = 0
 }

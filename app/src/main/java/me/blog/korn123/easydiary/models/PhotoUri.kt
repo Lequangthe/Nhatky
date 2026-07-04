@@ -4,9 +4,8 @@ import io.realm.RealmObject
 import io.realm.RealmResults
 import io.realm.annotations.LinkingObjects
 import me.blog.korn123.easydiary.helper.CONTENT_URI_PREFIX
-import me.blog.korn123.easydiary.helper.DIARY_PHOTO_DIRECTORY
-import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang3.StringUtils
+import me.blog.korn123.easydiary.helper.FILE_URI_PREFIX
+import me.blog.korn123.easydiary.helper.WORKING_DIRECTORY
 
 
 /**
@@ -19,7 +18,7 @@ open class PhotoUri : RealmObject {
     var photoUri: String? = null
     var mimeType: String? = null
 
-    constructor() 
+    constructor()
 
     constructor(photoUri: String) {
         this.photoUri = photoUri
@@ -29,12 +28,19 @@ open class PhotoUri : RealmObject {
         this.photoUri = photoUri
         this.mimeType = mimeType
     }
-    
-    fun isContentUri(): Boolean = StringUtils.startsWith(photoUri, CONTENT_URI_PREFIX)
-    
+
+    fun isContentUri(): Boolean = photoUri?.startsWith(CONTENT_URI_PREFIX) ?: false
+
     fun getFilePath(): String {
-        return "$DIARY_PHOTO_DIRECTORY${FilenameUtils.getBaseName(photoUri)}"
+        val raw = photoUri ?: return ""
+        val path = raw.removePrefix(FILE_URI_PREFIX)
+        val idx = path.indexOf(WORKING_DIRECTORY)
+        return if (idx >= 0) path.substring(idx) else raw
     }
 
     fun isEncrypt(): Boolean = photoUri?.isEmpty() ?: false
+
+    fun isAudio(): Boolean = mimeType?.startsWith("audio") ?: false
+
+    fun isVideo(): Boolean = mimeType?.startsWith("video") ?: false
 }

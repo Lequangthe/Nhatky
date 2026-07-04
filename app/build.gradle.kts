@@ -47,37 +47,11 @@ android {
             dimension = "buildType"
             signingConfig = signingConfigs.getByName("config")
         }
-        create("gmsDev") {
-            dimension = "buildType"
-            signingConfig = signingConfigs.getByName("config")
-        }
-        create("foss") {
-            dimension = "buildType"
-            signingConfig = signingConfigs.getByName("config")
-        }
-        create("lab") {
-            dimension = "buildType"
-            signingConfig = signingConfigs.getByName("config")
-        }
     }
 
     sourceSets {
         getByName("gmsProd") {
-            manifest.srcFile("src/gms/AndroidManifest.xml")
-            java.srcDirs("src/main/java", "src/gmsProd/java", "src/gms/java", "src/dummy/java")
-        }
-        getByName("gmsDev") {
-            manifest.srcFile("src/gms/AndroidManifest.xml")
-            java.srcDirs("src/main/java", "src/gmsDev/java", "src/gms/java", "src/dummy/java")
-        }
-        getByName("foss") {
-            manifest.srcFile("src/foss/AndroidManifest.xml")
-            java.srcDirs("src/main/java", "src/foss/java", "src/dummy/java")
-        }
-        getByName("lab") {
-            manifest.srcFile("src/gms/AndroidManifest.xml")
-            java.srcDirs("src/main/java", "src/gmsProd/java", "src/gms/java", "src/lab/java")
-            res.srcDirs("src/gmsProd/res")
+            java.srcDirs("src/main/java", "src/gmsProd/java")
         }
     }
 
@@ -137,18 +111,6 @@ android {
     }
 }
 
-configurations.matching { it.name == "fossImplementation" }.all {
-    exclude(group = "com.google.android.gms", module = "play-services-auth")
-    exclude(group = "com.google.android.play", module = "review")
-    exclude(group = "com.google.android.play", module = "review-ktx")
-    exclude(group = "com.google.api-client", module = "google-api-client-android")
-    exclude(group = "com.google.apis", module = "google-api-services-drive")
-    exclude(group = "com.google.apis", module = "google-api-services-calendar")
-    exclude(group = "com.google.http-client", module = "google-http-client-gson")
-    exclude(group = "androidx.credentials", module = "credentials-play-services-auth")
-    exclude(group = "com.google.android.libraries.identity.googleid", module = "googleid")
-}
-
 afterEvaluate {
     configurations.all {
         exclude(group = "org.jetbrains", module = "annotations-java5")
@@ -190,20 +152,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:1.10.1")
     implementation("androidx.compose.ui:ui-graphics:1.10.1")
     implementation("androidx.compose.ui:ui-tooling:1.10.1")
-    implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.fragment:fragment-compose:1.8.9")
     implementation("androidx.compose.material3:material3-window-size-class:1.4.0")
-
-    // gms
-    implementation("com.google.android.gms:play-services-auth:21.5.0")
-    implementation("com.google.android.play:review:2.0.2")
-    implementation("com.google.android.play:review-ktx:2.0.2")
-    implementation("com.google.api-client:google-api-client-android:2.8.1")
-    implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0")
-    implementation("com.google.apis:google-api-services-calendar:v3-rev411-1.25.0")
-    implementation("com.google.http-client:google-http-client-gson:2.1.0")
-    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
     // google components common
     implementation("com.google.android.flexbox:flexbox:3.0.0")

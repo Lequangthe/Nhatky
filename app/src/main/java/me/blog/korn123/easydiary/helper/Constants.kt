@@ -348,6 +348,7 @@ const val FLAG_THAILAND = 710
  *
  ***************************************************************************************************/
 const val LIST_URI_STRING = "list_uri_string"
+const val LIST_MIME_TYPE_STRING = "list_mime_type_string"
 const val SYMBOL_SEQUENCE = "symbol_sequence"
 const val SELECTED_YEAR = "selected_year"
 const val SELECTED_MONTH = "selected_month"
@@ -420,6 +421,8 @@ const val USER_CUSTOM_FONTS_DIRECTORY = "${WORKING_DIRECTORY}Fonts/"
 const val MARKDOWN_DIRECTORY = "${WORKING_DIRECTORY}Markdown/"
 const val BACKUP_EXCEL_DIRECTORY = "${WORKING_DIRECTORY}Backup/Excel/"
 const val BACKUP_DB_DIRECTORY = "${WORKING_DIRECTORY}Backup/Database/"
+const val DIARY_AUDIO_DIRECTORY = "${WORKING_DIRECTORY}Audio/"
+const val DIARY_VIDEO_DIRECTORY = "${WORKING_DIRECTORY}Video/"
 
 /***************************************************************************************************
  *   Request code constants

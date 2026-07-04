@@ -144,6 +144,10 @@ class DiaryEditingActivity : BaseDiaryEditingActivity() {
             .setOnClickListener(mClickListener)
         mBinding.partialEditContents.partialEditPhotoContainer.captureCamera
             .setOnClickListener(mClickListener)
+        mBinding.partialEditContents.partialEditPhotoContainer.recordAudio
+            .setOnClickListener(mClickListener)
+        mBinding.partialEditContents.partialEditPhotoContainer.recordVideo
+            .setOnClickListener(mClickListener)
         mBinding.partialEditContents.locationContainer.setOnClickListener(mClickListener)
         mBinding.partialEditContents.diaryTitle.setOnTouchListener(mTouchListener)
         mBinding.partialEditContents.diaryContents.setOnTouchListener(mTouchListener)

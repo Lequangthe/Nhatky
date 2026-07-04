@@ -221,7 +221,6 @@ class ZipHelper(
         showNotification(NOTIFICATION_DECOMPRESS_ID, "Full data recovery", "Recovery of all data is in progress.", NotificationConstants.ACTION_FULL_RECOVERY_CANCEL)
         val fileCount = countFileEntry(uri)
         val uriStream = context.contentResolver.openInputStream(uri!!)
-        val buffer = ByteArray(1024)
         try {
             val zipInputStream = ZipInputStream(uriStream)
             var zipEntry: ZipEntry? = zipInputStream.nextEntry
@@ -232,29 +231,25 @@ class ZipHelper(
                 val fileName = zipEntry.name
                 val newFile = File(workingPath + fileName)
 
-                File(newFile.parent).mkdirs()
-                val fileOutputStream = FileOutputStream(newFile)
-                var len: Int
-                writeLoop@ while (true) {
-                    len = zipInputStream.read(buffer)
-                    if (len > 0) {
-                        fileOutputStream.write(buffer, 0, len)
-                    } else {
-                        break@writeLoop
+                if (zipEntry.isDirectory) {
+                    newFile.mkdirs()
+                } else {
+                    File(newFile.parent).mkdirs()
+                    FileOutputStream(newFile).use { fileOutputStream ->
+                        IOUtils.copy(zipInputStream, fileOutputStream)
                     }
                 }
-                fileOutputStream.close()
 
                 zipInputStream.closeEntry()
                 zipEntry = zipInputStream.nextEntry
                 updateDecompressProgress(index++, fileCount, fileName)
             }
 
-            zipInputStream.closeEntry()
             zipInputStream.close()
             uriStream?.close()
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
+            isOnProgress = false
         }
     }
 

@@ -76,7 +76,9 @@
                             <com.simplemobiletools.commons.views.MyTextView
                                 android:id="@+id/text_date_time"
                                 style="@style/text_diary_main_item_inner_contents"
-                                android:gravity="end" />
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textSize="40sp" />
                         </LinearLayout>
                     </LinearLayout>
 

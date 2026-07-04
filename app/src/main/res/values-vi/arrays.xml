@@ -1,0 +1,28 @@
+<resources>
+    <string-array name="options_spinner_view_mode">
+        <item>Vừa khít tâm</item>
+        <item>Cắt trên</item>
+        <item>Cắt giữa</item>
+        <item>Cắt dưới</item>
+    </string-array>
+    <string-array name="options_spinner_filter_mode">
+        <item>Không bộ lọc</item>
+        <item>Hoạt hình</item>
+        <item>Nâu đỏ</item>
+        <item>Độ tương phản</item>
+        <item>Đảo ngược</item>
+        <item>Điểm ảnh</item>
+        <item>Phác thảo</item>
+        <item>Xoáy</item>
+        <item>Độ sáng</item>
+        <item>Kuwahara</item>
+        <item>Làm mờ viền</item>
+        <item>Thang độ xám</item>
+    </string-array>
+    <string-array name="pref_list_fonts_title">
+        <item>Phông chữ hệ thống</item>
+    </string-array>
+    <string-array name="pref_list_fonts_values">
+        <item>Mặc định</item>
+    </string-array>
+</resources>

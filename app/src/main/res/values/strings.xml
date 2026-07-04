@@ -146,6 +146,19 @@
     <string name="post_card">Diary Postcard</string>
     <string name="menu_delete">Delete</string>
 
+    <string name="button_today">TODAY</string>
+    <string name="button_menu">MENU</string>
+    <string name="button_expand_all">Expand All</string>
+    <string name="button_collapse_all">Collapse All</string>
+    <string name="button_top">↑ Top</string>
+    <string name="button_bottom">↓ Bottom</string>
+    <string name="button_clear_focus">Clear Focus</string>
+    <string name="tree_view_option_confirm">OK</string>
+    <string name="tree_view_option_title">Tree View Option Settings</string>
+    <string name="tree_view_option_full_path">Show node full path</string>
+    <string name="tree_view_option_stretch_card">Stretch item card</string>
+    <string name="diary_total_count">[Total: %d] category or title</string>
+
     <!--  //////////////////////////////////////////////////////////////////////////////////////////////  -->
     <!--  Resources added since version 1.4.41 here.                                                      -->
     <!--  //////////////////////////////////////////////////////////////////////////////////////////////  -->
@@ -866,6 +879,8 @@
     <string name="seconds_picker">Select seconds</string>
     <string name="save_diary">Save diary</string>
     <string name="photo_registration">Photo registration</string>
+    <string name="record_audio">Record Audio</string>
+    <string name="record_video">Record Video</string>
     <string name="zoom_in">Zoom In</string>
     <string name="zoom_out">Zoom Out</string>
     <string name="edit_diary">Edit diary</string>
@@ -1019,11 +1034,11 @@
     <string name="dashboard_backup_guide_message">No backup information</string>
     <string name="last_diary_backup_time">Diary last backup time:</string>
     <string name="last_photo_backup_time">Attached photo last backup time:</string>
-    <string name="export_full_backup_title">[BETA] Backup full data</string>
-    <string name="export_full_backup_description">Compress and back up all the data related to the diary such as database, attached photo, post card, font, etc. into one file.\nThis feature is a beta feature therefore may not work properly on some devices.</string>
+    <string name="backup_full_title">Full Backup (Choose Location)</string>
+    <string name="backup_full_description">Compress and back up all diary data (database, photos, audio, video) to a ZIP file at your chosen location.</string>
+    <string name="restore_full_title">Full Restore (Pick ZIP File)</string>
+    <string name="restore_full_description">Restore all diary data from a previously created backup ZIP file.</string>
     <string name="diary_symbol_search_message">Select the diary symbol you want to filter.</string>
-    <string name="import_full_backup_title">[BETA] Recover full data</string>
-    <string name="import_full_backup_description">Decompress and recover all the data related to the diary such as database, attached photo, post card, font, etc.\nThis feature is a beta feature therefore may not work properly on some devices.</string>
     <string name="calendar_sort_ascending">Ascending</string>
     <string name="calendar_sort_descending">Descending</string>
     <string name="calendar_sort_title">Calendar sort option</string>
@@ -1149,4 +1164,15 @@
     <string name="link_entry_as_child">As Child</string>
     <string name="link_entry_later">Later</string>
     <string name="menu_speech_to_text">Speech To Text</string>
+    <string name="media_storage_title">Media Storage Location</string>
+    <string name="media_storage_summary">Choose a folder to save audio and video recordings</string>
+    <string name="media_storage_choose">Select Folder</string>
+    <string name="media_storage_clear">Reset to Default</string>
+    <string name="media_storage_default">Default (App internal storage)</string>
+    <string name="media_storage_selected">Current: %s</string>
+    <string name="pick_video">Pick Video</string>
+    <string name="pick_audio">Pick Audio</string>
+    <string name="add_video_options">Add Video Options</string>
+    <string name="add_audio_options">Add Audio Options</string>
+    <string name="stop">Stop</string>
 </resources>

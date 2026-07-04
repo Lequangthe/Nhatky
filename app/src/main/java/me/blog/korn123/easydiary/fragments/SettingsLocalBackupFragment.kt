@@ -1,10 +1,13 @@
 package me.blog.korn123.easydiary.fragments
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import android.provider.MediaStore
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
@@ -50,6 +54,7 @@ import me.blog.korn123.easydiary.extensions.confirmExternalStoragePermission
 import me.blog.korn123.easydiary.extensions.exportRealmFile
 import me.blog.korn123.easydiary.extensions.getUriForFile
 import me.blog.korn123.easydiary.extensions.initTextSize
+import me.blog.korn123.easydiary.extensions.preferenceToJsonString
 import me.blog.korn123.easydiary.extensions.makeSnackBar
 import me.blog.korn123.easydiary.extensions.pauseLock
 import me.blog.korn123.easydiary.extensions.refreshApp
@@ -60,8 +65,10 @@ import me.blog.korn123.easydiary.extensions.updateDrawableColorInnerCardView
 import me.blog.korn123.easydiary.extensions.updateFragmentUI
 import me.blog.korn123.easydiary.extensions.updateTextColors
 import me.blog.korn123.easydiary.helper.BACKUP_DB_DIRECTORY
+import me.blog.korn123.easydiary.helper.WORKING_DIRECTORY
 import me.blog.korn123.easydiary.helper.BACKUP_EXCEL_DIRECTORY
 import me.blog.korn123.easydiary.helper.DIARY_PHOTO_DIRECTORY
+import me.blog.korn123.easydiary.helper.ZipHelper
 import me.blog.korn123.easydiary.helper.DateUtilConstants
 import me.blog.korn123.easydiary.helper.EXTERNAL_STORAGE_PERMISSIONS
 import me.blog.korn123.easydiary.helper.EasyDiaryDbHelper
@@ -291,14 +298,14 @@ class SettingsLocalBackupFragment : androidx.fragment.app.Fragment() {
                     }
 
                     SimpleCard(
-                        title = getString(R.string.export_full_backup_title),
-                        description = getString(R.string.export_full_backup_description),
+                        title = getString(R.string.backup_full_title),
+                        description = getString(R.string.backup_full_description),
                         modifier = settingCardModifier,
                     ) {
                         when (requireActivity().checkPermission(EXTERNAL_STORAGE_PERMISSIONS)) {
                             true -> {
                                 setupLauncher(REQUEST_CODE_SAF_WRITE_ZIP) {
-                                    EasyDiaryUtils.writeFileWithSAF(DateUtils.getCurrentDateTime(DateUtilConstants.DATE_TIME_PATTERN_WITHOUT_DASH) + ".zip", MIME_TYPE_ZIP, mRequestWriteFileWithSAF)
+                                    EasyDiaryUtils.writeFileWithSAF("Nhatky_" + DateUtils.getCurrentDateTime(DateUtilConstants.DATE_TIME_PATTERN_WITHOUT_DASH) + ".zip", MIME_TYPE_ZIP, mRequestWriteFileWithSAF)
                                 }
                             }
 
@@ -311,8 +318,8 @@ class SettingsLocalBackupFragment : androidx.fragment.app.Fragment() {
                     }
 
                     SimpleCard(
-                        title = getString(R.string.import_full_backup_title),
-                        description = getString(R.string.import_full_backup_description),
+                        title = getString(R.string.restore_full_title),
+                        description = getString(R.string.restore_full_description),
                         modifier = settingCardModifier,
                     ) {
                         setupLauncher(REQUEST_CODE_SAF_READ_ZIP) {
@@ -663,6 +670,13 @@ class SettingsLocalBackupFragment : androidx.fragment.app.Fragment() {
 //    }
 
     private fun exportFullBackupFile(uri: Uri?) {
+        uri?.let {
+            try {
+                requireActivity().contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         exportRealmFile(false)
         BackupOperations.Builder(requireActivity(), uri.toString(), WorkerConstants.WORK_MODE_BACKUP).build().apply {
             continuation.enqueue()
@@ -670,6 +684,13 @@ class SettingsLocalBackupFragment : androidx.fragment.app.Fragment() {
     }
 
     private fun importFullBackupFile(uri: Uri?) {
+        uri?.let {
+            try {
+                requireActivity().contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         BackupOperations.Builder(requireActivity(), uri.toString(), WorkerConstants.WORK_MODE_RECOVERY).build().apply {
             continuation.enqueue()
         }

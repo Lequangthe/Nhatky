@@ -1,4 +1,4 @@
-*.iml
+﻿*.iml
 .gradle
 .idea/
 build
@@ -8,9 +8,10 @@ app/build
 app/*.apk
 app/*.iml
 app/release
+app/debug.keystore
+app/gmsProd/release/
 
 app/src/gmsDev/res/drawable/ic_*
 app/src/gmsProd/res/drawable/ic_*
 app/src/gmsProd/res/**/*.png
 app/src/gmsProd/res/values/keys.xml
-app/gmsProd/release/*

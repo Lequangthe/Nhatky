@@ -158,7 +158,6 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                 applyFullScreenStatusBarTheme()
                 updateNavigationBarAppearance()
                 Scaffold(
-                    contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
                     containerColor = Color(config.screenBackgroundColor),
                     content = { innerPadding ->
                         val context = LocalContext.current
@@ -322,10 +321,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                             },
                     contentPadding =
                         PaddingValues(
-                            bottom =
-                                WindowInsets.navigationBars
-                                    .asPaddingValues()
-                                    .calculateBottomPadding(),
+                            bottom = 120.dp
                         ),
                 ) {
                     itemsIndexed(items) { index, diary ->
@@ -418,7 +414,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
 //                ) {
                 Row(modifier = Modifier.align(Alignment.BottomCenter)) {
                     BottomSheet(
-                        title = "[Total: ${items.size}] category or title",
+                        title = getString(R.string.diary_total_count, items.size),
                         currentQuery = currentQuery,
                         enableCardViewPolicy = enableCardViewPolicy,
                     ) { query ->
@@ -480,10 +476,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                 },
                         contentPadding =
                             PaddingValues(
-                                bottom =
-                                    WindowInsets.navigationBars
-                                        .asPaddingValues()
-                                        .calculateBottomPadding(),
+                                bottom = 120.dp
                             ),
                     ) {
                         itemsIndexed(items) { index, diary ->
@@ -654,8 +647,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                 Column(
                     modifier =
                         Modifier
-                            .padding(5.dp)
-                            .navigationBarsPadding(),
+                            .padding(5.dp),
                 ) {
                     Row(
                         modifier = Modifier,
@@ -765,7 +757,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                             )
                         }
                         CustomElevatedButton(
-                            text = "TODAY",
+                            text = getString(R.string.button_today),
                             iconResourceId = R.drawable.ic_time_8_w,
                             iconSize = 16.dp,
                         ) {
@@ -794,7 +786,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                 )
                             }
                             CustomElevatedButton(
-                                text = "MENU",
+                                text = getString(R.string.button_menu),
                                 iconResourceId = R.drawable.ic_options_three_dots,
                                 iconSize = 16.dp,
                             ) {

@@ -12,7 +12,11 @@ import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.media.MediaPlayer
+import android.media.MediaRecorder
+import android.graphics.drawable.InsetDrawable
 import android.net.Uri
+import android.widget.ImageView
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -39,6 +43,7 @@ import me.blog.korn123.commons.utils.EasyDiaryUtils
 import me.blog.korn123.commons.utils.EasyDiaryUtils.createBackgroundGradientDrawable
 import me.blog.korn123.commons.utils.FlavorUtils
 import me.blog.korn123.commons.utils.JasyptUtils
+import com.bumptech.glide.Glide
 import me.blog.korn123.easydiary.R
 import me.blog.korn123.easydiary.databinding.ActivityBaseDiaryEditingBinding
 import me.blog.korn123.easydiary.enums.DialogMode
@@ -135,13 +140,13 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
     private val mRequestImagePicker =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             pauseLock()
-            if (it.resultCode == Activity.RESULT_OK && it.data != null) attachPhotos(arrayListOf(it.data!!.data.toString()), true)
+            if (it.resultCode == Activity.RESULT_OK && it.data != null) attachMedia(arrayListOf(it.data!!.data.toString()), true)
         }
     private val mPickMultipleMedia =
         registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(10)) { uris ->
             pauseLock()
             if (uris.isNotEmpty()) {
-                attachPhotos(ArrayList(uris.map { uri -> uri.toString() }), true)
+                attachMedia(ArrayList(uris.map { uri -> uri.toString() }), true)
             } else {
                 showAlertDialog("No selected photos.")
             }
@@ -152,18 +157,48 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
             if (it.resultCode ==
                 Activity.RESULT_OK
             ) {
-                attachPhotos(
+                attachMedia(
                     arrayListOf(EasyDiaryUtils.getApplicationDataDirectory(this) + DIARY_PHOTO_DIRECTORY + CAPTURE_CAMERA_FILE_NAME),
                     false,
                 )
             }
         }
+    private val mRequestCaptureVideo =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            pauseLock()
+            if (it.resultCode == Activity.RESULT_OK) {
+                it.data?.data?.let { videoUri ->
+                    attachMedia(arrayListOf(videoUri.toString()), true)
+                }
+            }
+        }
+    private val mPickVideo =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            pauseLock()
+            if (it.resultCode == Activity.RESULT_OK) {
+                it.data?.data?.let { videoUri ->
+                    attachMedia(arrayListOf(videoUri.toString()), true)
+                }
+            }
+        }
+    private val mPickAudio =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            pauseLock()
+            if (it.resultCode == Activity.RESULT_OK) {
+                it.data?.data?.let { audioUri ->
+                    attachMedia(arrayListOf(audioUri.toString()), true)
+                }
+            }
+        }
+    private var mMediaRecorder: MediaRecorder? = null
+    private var mIsRecording = false
+    private var mAudioFilePath: String? = null
     private val mRequestPickPhotoData =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             pauseLock()
             it?.data?.let { data ->
                 val selectedUriPaths = data.getSerializableExtra(PickConfig.INTENT_IMG_LIST_SELECT) as java.util.ArrayList<String>
-                attachPhotos(selectedUriPaths, true)
+                attachMedia(selectedUriPaths, true)
             }
         }
     protected lateinit var mBinding: ActivityBaseDiaryEditingBinding
@@ -234,8 +269,53 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
                 R.id.locationContainer -> {
                     setLocationInfo()
                 }
+
+                R.id.recordAudio -> {
+                    showAudioOptions()
+                }
+
+                R.id.recordVideo -> {
+                    showVideoOptions()
+                }
             }
         }
+
+    private fun showAudioOptions() {
+        val options = arrayOf(getString(R.string.record_audio), getString(R.string.pick_audio))
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(getString(R.string.add_audio_options))
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> toggleAudioRecording()
+                    1 -> {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT)
+                        intent.type = "audio/*"
+                        mPickAudio.launch(intent)
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun showVideoOptions() {
+        val options = arrayOf(getString(R.string.record_video), getString(R.string.pick_video))
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(getString(R.string.add_video_options))
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+                        mRequestCaptureVideo.launch(intent)
+                    }
+                    1 -> {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT)
+                        intent.type = "video/*"
+                        mPickVideo.launch(intent)
+                    }
+                }
+            }
+            .show()
+    }
 
     val mTouchListener =
         View.OnTouchListener { view, motionEvent ->
@@ -280,7 +360,7 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         }
 
-        applyBottomImeInsets(mBinding.partialEditContents.root)
+        applyBottomInsets(mBinding.partialEditContents.root)
 
         onBackPressedDispatcher.addCallback(
             this,
@@ -296,10 +376,13 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
         applyRemoveIndex()
         outState.run {
             val listUriString = arrayListOf<String>()
+            val listMimeTypeString = arrayListOf<String>()
             mPhotoUris.map { model ->
                 listUriString.add(model.photoUri ?: "")
+                listMimeTypeString.add(model.mimeType ?: "")
             }
             putStringArrayList(LIST_URI_STRING, listUriString)
+            putStringArrayList(LIST_MIME_TYPE_STRING, listMimeTypeString)
             putInt(SELECTED_YEAR, mYear)
             putInt(SELECTED_MONTH, mMonth)
             putInt(SELECTED_DAY, mDayOfMonth)
@@ -688,7 +771,7 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
         }
     }
 
-    protected fun attachPhotos(
+    protected fun attachMedia(
         selectPaths: ArrayList<String>,
         isUriString: Boolean,
     ) {
@@ -696,33 +779,37 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
         Thread(
             Runnable {
                 selectPaths.map { item ->
-                    val photoPath = EasyDiaryUtils.getApplicationDataDirectory(this) + DIARY_PHOTO_DIRECTORY + UUID.randomUUID().toString()
                     try {
-                        val mimeType: String =
-                            when (isUriString) {
-                                true -> {
-                                    EasyDiaryUtils.downSamplingImage(this, Uri.parse(item), File(photoPath))
-                                }
+                        val uri = if (isUriString) Uri.parse(item) else Uri.fromFile(File(item))
+                        val mimeType = contentResolver.getType(uri) ?: (if (item.contains("video")) "video/mp4" else if (item.contains("audio")) "audio/mp4" else "image/jpeg")
 
-                                false -> {
-                                    EasyDiaryUtils.downSamplingImage(this, File(item), File(photoPath))
-                                    MIME_TYPE_JPEG
+                        val destDirectory = when {
+                            mimeType.startsWith("video") -> DIARY_VIDEO_DIRECTORY
+                            mimeType.startsWith("audio") -> DIARY_AUDIO_DIRECTORY
+                            else -> DIARY_PHOTO_DIRECTORY
+                        }
+
+                        val fileName = UUID.randomUUID().toString()
+                        val destPath = EasyDiaryUtils.getApplicationDataDirectory(this) + destDirectory + fileName
+                        val destFile = File(destPath)
+
+                        val finalMimeType: String
+                        if (mimeType.startsWith("image")) {
+                            finalMimeType = EasyDiaryUtils.downSamplingImage(this, uri, destFile)
+                        } else {
+                            contentResolver.openInputStream(uri)?.use { inputStream ->
+                                java.io.FileOutputStream(destFile).use { outputStream ->
+                                    org.apache.commons.io.IOUtils.copy(inputStream, outputStream)
                                 }
                             }
-                        val photoUriDto = PhotoUri(FILE_URI_PREFIX + photoPath, mimeType)
+                            finalMimeType = mimeType
+                        }
+
+                        val photoUriDto = PhotoUri(FILE_URI_PREFIX + destPath, finalMimeType)
                         mPhotoUris.add(photoUriDto)
                         val currentIndex = mPhotoUris.size - 1
                         runOnUiThread {
-                            val imageView =
-                                when (isLandScape()) {
-                                    true -> EasyDiaryUtils.createAttachedPhotoView(this, photoUriDto, 0F, 0F, 0F, 3F)
-                                    false -> EasyDiaryUtils.createAttachedPhotoView(this, photoUriDto, 0F, 0F, 3F, 0F)
-                                }
-                            imageView.setOnClickListener(PhotoClickListener(currentIndex))
-                            mBinding.partialEditContents.partialEditPhotoContainer.run {
-                                photoContainer.addView(imageView, photoContainer.childCount - 1)
-                            }
-                            initBottomToolbar()
+                            addMediaThumbnail(photoUriDto, currentIndex)
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -804,8 +891,11 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
                 photoContainer.removeAllViews()
                 photoContainer.addView(attachView)
 
-                getStringArrayList(LIST_URI_STRING)?.map { uriString ->
-                    mPhotoUris.add(PhotoUri(uriString))
+                val uriList = getStringArrayList(LIST_URI_STRING)
+                val mimeTypeList = getStringArrayList(LIST_MIME_TYPE_STRING)
+                uriList?.forEachIndexed { index, uriString ->
+                    val mimeType = mimeTypeList?.getOrNull(index) ?: ""
+                    mPhotoUris.add(PhotoUri(uriString, mimeType))
                 }
                 mYear = getInt(SELECTED_YEAR, mYear)
                 mMonth = getInt(SELECTED_MONTH, mMonth)
@@ -820,7 +910,32 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
                             true -> EasyDiaryUtils.createAttachedPhotoView(this@BaseDiaryEditingActivity, photoUriDto, 0F, 0F, 0F, 3F)
                             false -> EasyDiaryUtils.createAttachedPhotoView(this@BaseDiaryEditingActivity, photoUriDto, 0F, 0F, 3F, 0F)
                         }
-                    imageView.setOnClickListener(PhotoClickListener(index))
+                    
+                    val mimeType = photoUriDto.mimeType ?: ""
+                    if (mimeType.startsWith("video") || mimeType.startsWith("audio")) {
+                        imageView.setOnClickListener(MediaClickListener(index))
+                        imageView.setOnLongClickListener {
+                            if (mSymbolSequence != SYMBOL_EASTER_EGG) {
+                                val targetIndex = index
+                                showAlertDialog(
+                                    getString(R.string.delete_photo_confirm_message),
+                                    { _, _ ->
+                                        mRemoveIndexes.add(targetIndex)
+                                        mBinding.partialEditContents.partialEditPhotoContainer.photoContainer.removeView(
+                                            imageView,
+                                        )
+                                        initBottomToolbar()
+                                    },
+                                    { _, _ -> },
+                                    DialogMode.INFO,
+                                )
+                            }
+                            true
+                        }
+                    } else {
+                        imageView.setOnClickListener(PhotoClickListener(index))
+                    }
+
                     photoContainer.addView(imageView, photoContainer.childCount - 1)
                 }
 
@@ -888,7 +1003,31 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
                         false -> EasyDiaryUtils.createAttachedPhotoView(this, photoUriDto, 0F, 0F, 3F, 0F)
                     }
 
-                imageView.setOnClickListener(PhotoClickListener(index))
+                val mimeType = photoUriDto.mimeType ?: ""
+                if (mimeType.startsWith("video") || mimeType.startsWith("audio")) {
+                    imageView.setOnClickListener(MediaClickListener(index))
+                    imageView.setOnLongClickListener {
+                        if (mSymbolSequence != SYMBOL_EASTER_EGG) {
+                            val targetIndex = index
+                            showAlertDialog(
+                                getString(R.string.delete_photo_confirm_message),
+                                { _, _ ->
+                                    mRemoveIndexes.add(targetIndex)
+                                    mBinding.partialEditContents.partialEditPhotoContainer.photoContainer.removeView(
+                                        imageView,
+                                    )
+                                    initBottomToolbar()
+                                },
+                                { _, _ -> },
+                                DialogMode.INFO,
+                            )
+                        }
+                        true
+                    }
+                } else {
+                    imageView.setOnClickListener(PhotoClickListener(index))
+                }
+
                 mBinding.partialEditContents.partialEditPhotoContainer.run {
                     photoContainer.addView(imageView, photoContainer.childCount - 1)
                 }
@@ -935,6 +1074,165 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
     }
 
     /***************************************************************************************************
+     *   Audio / Video recording
+     *
+     ***************************************************************************************************/
+    protected fun toggleAudioRecording() {
+        if (mIsRecording) {
+            stopAudioRecording()
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkPermission(arrayOf(Manifest.permission.RECORD_AUDIO))) {
+                    startAudioRecording()
+                } else {
+                    confirmPermission(arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_CODE_EXTERNAL_STORAGE)
+                }
+            } else {
+                startAudioRecording()
+            }
+        }
+    }
+
+    private var mRecordingDialog: androidx.appcompat.app.AlertDialog? = null
+    private var mRecordingTime = 0
+    private val mRecordingHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val mRecordingRunnable = object : Runnable {
+        override fun run() {
+            mRecordingTime++
+            val minutes = mRecordingTime / 60
+            val seconds = mRecordingTime % 60
+            mRecordingDialog?.setMessage(String.format("Recording... %02d:%02d", minutes, seconds))
+            mRecordingHandler.postDelayed(this, 1000)
+        }
+    }
+
+    private fun startAudioRecording() {
+        val audioDir = File(EasyDiaryUtils.getApplicationDataDirectory(this) + DIARY_AUDIO_DIRECTORY)
+        if (!audioDir.exists()) audioDir.mkdirs()
+        val fileName = UUID.randomUUID().toString()
+        mAudioFilePath = audioDir.absolutePath + File.separator + fileName
+        mMediaRecorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setOutputFile(mAudioFilePath)
+            try {
+                prepare()
+                start()
+                mIsRecording = true
+                showRecordingDialog()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                makeSnackBar("Failed to start recording")
+            }
+        }
+    }
+
+    private fun showRecordingDialog() {
+        mRecordingTime = 0
+        mRecordingDialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.record_audio)
+            .setMessage("Recording... 00:00")
+            .setPositiveButton(R.string.stop) { _, _ ->
+                stopAudioRecording()
+            }
+            .setCancelable(false)
+            .show()
+        mRecordingHandler.postDelayed(mRecordingRunnable, 1000)
+    }
+
+    private fun stopAudioRecording() {
+        mRecordingHandler.removeCallbacks(mRecordingRunnable)
+        mRecordingDialog?.dismiss()
+        mRecordingDialog = null
+        try {
+            mMediaRecorder?.apply {
+                stop()
+                release()
+            }
+            mMediaRecorder = null
+            mIsRecording = false
+            mAudioFilePath?.let { path ->
+                val file = File(path)
+                if (file.exists()) {
+                    val photoUriDto = PhotoUri(FILE_URI_PREFIX + path, "audio/mp4")
+                    mPhotoUris.add(photoUriDto)
+                    runOnUiThread {
+                        addMediaThumbnail(photoUriDto, mPhotoUris.size - 1)
+                    }
+                    makeSnackBar("Audio saved")
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            makeSnackBar("Failed to stop recording")
+        }
+    }
+
+    protected fun addMediaThumbnail(photoUriDto: PhotoUri, index: Int) {
+        val thumbnailSize = dpToPixel(config.settingThumbnailSize)
+        val cornerRadius = thumbnailSize * PHOTO_CORNER_RADIUS_SCALE_FACTOR_NORMAL
+        val imageView = ImageView(this)
+        val layoutParams = LinearLayout.LayoutParams(thumbnailSize, thumbnailSize)
+        layoutParams.setMargins(0, 0, dpToPixel(3F), 0)
+        imageView.layoutParams = layoutParams
+        imageView.scaleType = ImageView.ScaleType.CENTER
+        val padding = dpToPixel(2.5F)
+        imageView.setPadding(padding, padding, padding, padding)
+        val mimeType = photoUriDto.mimeType ?: ""
+        if (mimeType.startsWith("audio")) {
+            imageView.background = EasyDiaryUtils.createBackgroundGradientDrawable(
+                config.primaryColor, 220, cornerRadius
+            )
+            imageView.setImageResource(R.drawable.ic_mic)
+            imageView.setColorFilter(Color.WHITE)
+        } else if (mimeType.startsWith("video")) {
+            imageView.background = EasyDiaryUtils.createBackgroundGradientDrawable(
+                config.primaryColor, THUMBNAIL_BACKGROUND_ALPHA, cornerRadius
+            )
+            val path = photoUriDto.photoUri?.removePrefix(FILE_URI_PREFIX)
+            if (path != null) {
+                Glide.with(this).load(File(path))
+                    .apply(EasyDiaryUtils.createThumbnailGlideOptions(cornerRadius.toInt()))
+                    .into(imageView)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    val icon = ContextCompat.getDrawable(this, R.drawable.ic_videocam)?.mutate()
+                    icon?.setTint(Color.WHITE)
+                    val iconPadding = (thumbnailSize * 0.25f).toInt()
+                    imageView.foreground = InsetDrawable(icon, iconPadding)
+                }
+            } else {
+                imageView.setImageResource(R.drawable.ic_videocam)
+            }
+        }
+        imageView.setOnClickListener(MediaClickListener(index))
+        imageView.setOnLongClickListener {
+            if (mSymbolSequence != SYMBOL_EASTER_EGG) {
+                val targetIndex = index
+                showAlertDialog(
+                    getString(R.string.delete_photo_confirm_message),
+                    { _, _ ->
+                        mRemoveIndexes.add(targetIndex)
+                        mBinding.partialEditContents.partialEditPhotoContainer.photoContainer.removeView(
+                            imageView,
+                        )
+                        initBottomToolbar()
+                    },
+                    { _, _ -> },
+                    DialogMode.INFO,
+                )
+            }
+            true
+        }
+        mBinding.partialEditContents.partialEditPhotoContainer.photoContainer.addView(
+            imageView,
+            mBinding.partialEditContents.partialEditPhotoContainer.photoContainer.childCount - 1,
+        )
+        initBottomToolbar()
+    }
+
+    /***************************************************************************************************
      *   abstract functions
      *
      ***************************************************************************************************/
@@ -962,6 +1260,24 @@ abstract class BaseDiaryEditingActivity : EasyDiaryActivity() {
                     { _, _ -> },
                     DialogMode.INFO,
                 )
+            }
+        }
+    }
+
+    inner class MediaClickListener(
+        var index: Int,
+    ) : View.OnClickListener {
+        override fun onClick(v: View) {
+            if (index < mPhotoUris.size) {
+                val photoUri = mPhotoUris[index] ?: return
+                val mimeType = photoUri.mimeType ?: ""
+                val path = photoUri.photoUri?.removePrefix(FILE_URI_PREFIX) ?: return
+                if (!File(path).exists()) return
+                
+                val intent = Intent(this@BaseDiaryEditingActivity, MediaViewerActivity::class.java)
+                intent.putExtra("path", path)
+                intent.putExtra("mimeType", mimeType)
+                startActivity(intent)
             }
         }
     }

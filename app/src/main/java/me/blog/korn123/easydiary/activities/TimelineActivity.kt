@@ -16,6 +16,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import me.blog.korn123.commons.utils.DateUtils
 import me.blog.korn123.commons.utils.EasyDiaryUtils
 import me.blog.korn123.commons.utils.FlavorUtils
@@ -225,6 +228,12 @@ class TimelineActivity : EasyDiaryActivity() {
             config.previousActivity = -1
         } else {
             refreshList()
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.timelineList) { v, insets ->
+            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            v.updatePadding(bottom = navigationBars.bottom)
+            insets
         }
     }
 

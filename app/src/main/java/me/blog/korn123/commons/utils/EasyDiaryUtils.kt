@@ -15,6 +15,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.InsetDrawable
+import android.graphics.drawable.LayerDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -69,8 +71,10 @@ import me.blog.korn123.easydiary.helper.ATTACH_PHOTO_MARGIN_DP
 import me.blog.korn123.easydiary.helper.BACKUP_DB_DIRECTORY
 import me.blog.korn123.easydiary.helper.BACKUP_EXCEL_DIRECTORY
 import me.blog.korn123.easydiary.helper.ColorConstants
+import me.blog.korn123.easydiary.helper.DIARY_AUDIO_DIRECTORY
 import me.blog.korn123.easydiary.helper.DIARY_PHOTO_DIRECTORY
 import me.blog.korn123.easydiary.helper.DIARY_POSTCARD_DIRECTORY
+import me.blog.korn123.easydiary.helper.DIARY_VIDEO_DIRECTORY
 import me.blog.korn123.easydiary.helper.DiaryComponentConstants
 import me.blog.korn123.easydiary.helper.EXTERNAL_STORAGE_PERMISSIONS
 import me.blog.korn123.easydiary.helper.EasyDiaryDbHelper
@@ -287,11 +291,31 @@ object EasyDiaryUtils {
         imageView.scaleType = ImageView.ScaleType.CENTER
         val padding = (context.dpToPixel(2.5F, Calculation.FLOOR))
         imageView.setPadding(padding, padding, padding, padding)
-        Glide
-            .with(context)
-            .load(getApplicationDataDirectory(context) + photoUri.getFilePath())
-            .apply(createThumbnailGlideOptions(cornerRadius, photoUri.isEncrypt()))
-            .into(imageView)
+
+        val mimeType = photoUri.mimeType ?: ""
+        if (mimeType.startsWith("audio")) {
+            imageView.background =
+                createBackgroundGradientDrawable(
+                    context.config.primaryColor,
+                    220,
+                    cornerRadius,
+                )
+            imageView.setImageResource(R.drawable.ic_mic)
+            imageView.setColorFilter(Color.WHITE)
+        } else {
+            Glide
+                .with(context)
+                .load(getApplicationDataDirectory(context) + photoUri.getFilePath())
+                .apply(createThumbnailGlideOptions(cornerRadius, photoUri.isEncrypt()))
+                .into(imageView)
+
+            if (mimeType.startsWith("video") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val icon = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.ic_videocam)?.mutate()
+                icon?.setTint(Color.WHITE)
+                val iconPadding = (thumbnailSize * 0.25f).toInt()
+                imageView.foreground = InsetDrawable(icon, iconPadding)
+            }
+        }
         return imageView
     }
 
@@ -325,11 +349,31 @@ object EasyDiaryUtils {
         imageView.scaleType = ImageView.ScaleType.CENTER
 //        val padding = (activity.dpToPixel(1F, Calculation.FLOOR))
 //        imageView.setPadding(padding, padding, padding, padding)
-        Glide
-            .with(activity)
-            .load(getApplicationDataDirectory(activity) + photoUri.getFilePath())
-            .apply(createThumbnailGlideOptions(cornerRadius, photoUri.isEncrypt()))
-            .into(imageView)
+        
+        val mimeType = photoUri.mimeType ?: ""
+        if (mimeType.startsWith("audio")) {
+            imageView.background =
+                createBackgroundGradientDrawable(
+                    activity.config.primaryColor,
+                    220,
+                    cornerRadius,
+                )
+            imageView.setImageResource(R.drawable.ic_mic)
+            imageView.setColorFilter(Color.WHITE)
+        } else {
+            Glide
+                .with(activity)
+                .load(getApplicationDataDirectory(activity) + photoUri.getFilePath())
+                .apply(createThumbnailGlideOptions(cornerRadius, photoUri.isEncrypt()))
+                .into(imageView)
+
+            if (mimeType.startsWith("video") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val icon = androidx.core.content.ContextCompat.getDrawable(activity, R.drawable.ic_videocam)?.mutate()
+                icon?.setTint(Color.WHITE)
+                val iconPadding = (thumbnailSize * 0.25f).toInt()
+                imageView.foreground = InsetDrawable(icon, iconPadding)
+            }
+        }
 
         val margin = activity.dpToPixel(ATTACH_PHOTO_MARGIN_DP, Calculation.FLOOR)
         val contentPadding = activity.dpToPixel(attachCardContentPadding, Calculation.FLOOR)
@@ -425,6 +469,8 @@ object EasyDiaryUtils {
         makeDirectory(getApplicationDataDirectory(context) + MARKDOWN_DIRECTORY)
         makeDirectory(getApplicationDataDirectory(context) + BACKUP_EXCEL_DIRECTORY)
         makeDirectory(getApplicationDataDirectory(context) + BACKUP_DB_DIRECTORY)
+        makeDirectory(getApplicationDataDirectory(context) + DIARY_AUDIO_DIRECTORY)
+        makeDirectory(getApplicationDataDirectory(context) + DIARY_VIDEO_DIRECTORY)
 //        }
     }
 

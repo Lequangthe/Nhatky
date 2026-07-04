@@ -34,14 +34,25 @@
                         <LinearLayout
                             style="@style/LinearLayoutVertical">
                             <androidx.appcompat.widget.LinearLayoutCompat
-                                android:orientation="horizontal"
+                                android:orientation="vertical"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content">
+                                <com.simplemobiletools.commons.views.MyTextView
+                                    android:id="@+id/date"
+                                    style="@style/text_diary_read_fragment_inner_contents"
+                                    android:layout_width="match_parent"
+                                    android:gravity="center"
+                                    android:textColor="@color/default_text_color"
+                                    android:textSize="24sp"
+                                    android:textStyle="bold"
+                                    tools:text="2021년10월23일 토요일 05:14" />
+
                                 <LinearLayout
                                     android:id="@+id/feelingSymbolButton"
                                     android:gravity="center"
                                     android:orientation="horizontal"
                                     android:minHeight="32dp"
+                                    android:visibility="gone"
                                     android:background="?attr/selectableItemBackgroundBorderless"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content">
@@ -65,33 +76,25 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content" />
                                 </LinearLayout>
+
                                 <com.simplemobiletools.commons.views.MyEditText
                                     android:id="@+id/diaryTitle"
                                     style="@style/edit_diary_edit_inner_contents"
-                                    android:layout_gravity="center_vertical"
+                                    android:layout_width="match_parent"
+                                    android:layout_marginTop="8dp"
                                     android:background="@android:color/transparent"
-                                    android:gravity="center_vertical"
+                                    android:gravity="center"
                                     android:hint="@string/guide_message"
+                                    android:textSize="22sp"
+                                    android:textStyle="bold"
                                     android:inputType="text|textCapSentences|textAutoCorrect|textAutoComplete" />
-                            </androidx.appcompat.widget.LinearLayoutCompat>
-
-                            <androidx.appcompat.widget.LinearLayoutCompat
-                                style="@style/edit_diary_edit_inner_contents"
-                                android:gravity="center_vertical|end"
-                                android:orientation="horizontal">
-
-                                <com.simplemobiletools.commons.views.MyTextView
-                                    android:id="@+id/date"
-                                    style="@style/text_diary_read_fragment_inner_contents"
-                                    android:layout_width="wrap_content"
-                                    android:textColor="@color/default_text_color"
-                                    tools:text="2021년10월23일 토요일 05:14" />
 
                                 <LinearLayout
                                     android:id="@+id/allDayContainer"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="10dp"
+                                    android:layout_gravity="center"
+                                    android:layout_marginTop="4dp"
                                     android:orientation="horizontal">
 
                                     <androidx.appcompat.widget.AppCompatCheckBox

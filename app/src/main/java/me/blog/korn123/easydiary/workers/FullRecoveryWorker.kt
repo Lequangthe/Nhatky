@@ -31,32 +31,32 @@ class FullRecoveryWorker(
                 val map = jsonFileToHashMap(jsonFilename)
                 context.config.run {
                     // Settings Basic
-                    primaryColor = (map[PRIMARY_COLOR] as Double).toInt()
-                    backgroundColor = (map[BACKGROUND_COLOR] as Double).toInt()
-                    screenBackgroundColor = (map[SETTING_CARD_VIEW_BACKGROUND_COLOR] as Double).toInt()
-                    textColor = (map[TEXT_COLOR] as Double).toInt()
-                    settingThumbnailSize = (map[SETTING_THUMBNAIL_SIZE] as Double).toFloat()
-                    enableContentsSummary = map[SETTING_CONTENTS_SUMMARY] as Boolean
-                    summaryMaxLines = (map[SETTING_SUMMARY_MAX_LINES] as Double).toInt()
-                    enableCardViewPolicy = map[ENABLE_CARD_VIEW_POLICY] as Boolean
-//                    multiPickerEnable = map[SETTING_MULTIPLE_PICKER] as Boolean
-                    diarySearchQueryCaseSensitive = map[DIARY_SEARCH_QUERY_CASE_SENSITIVE] as Boolean
-                    calendarStartDay = (map[SETTING_CALENDAR_START_DAY] as Double).toInt()
-                    calendarSorting = (map[SETTING_CALENDAR_SORTING] as Double).toInt()
-                    enableCountCharacters = map[SETTING_COUNT_CHARACTERS] as Boolean
-                    holdPositionEnterEditScreen = map[HOLD_POSITION_ENTER_EDIT_SCREEN] as Boolean
+                    (map[PRIMARY_COLOR] as? Double)?.let { primaryColor = it.toInt() }
+                    (map[BACKGROUND_COLOR] as? Double)?.let { backgroundColor = it.toInt() }
+                    (map[SETTING_CARD_VIEW_BACKGROUND_COLOR] as? Double)?.let { screenBackgroundColor = it.toInt() }
+                    (map[TEXT_COLOR] as? Double)?.let { textColor = it.toInt() }
+                    (map[SETTING_THUMBNAIL_SIZE] as? Double)?.let { settingThumbnailSize = it.toFloat() }
+                    (map[SETTING_CONTENTS_SUMMARY] as? Boolean)?.let { enableContentsSummary = it }
+                    (map[SETTING_SUMMARY_MAX_LINES] as? Double)?.let { summaryMaxLines = it.toInt() }
+                    (map[ENABLE_CARD_VIEW_POLICY] as? Boolean)?.let { enableCardViewPolicy = it }
+//                    (map[SETTING_MULTIPLE_PICKER] as? Boolean)?.let { multiPickerEnable = it }
+                    (map[DIARY_SEARCH_QUERY_CASE_SENSITIVE] as? Boolean)?.let { diarySearchQueryCaseSensitive = it }
+                    (map[SETTING_CALENDAR_START_DAY] as? Double)?.let { calendarStartDay = it.toInt() }
+                    (map[SETTING_CALENDAR_SORTING] as? Double)?.let { calendarSorting = it.toInt() }
+                    (map[SETTING_COUNT_CHARACTERS] as? Boolean)?.let { enableCountCharacters = it }
+                    (map[HOLD_POSITION_ENTER_EDIT_SCREEN] as? Boolean)?.let { holdPositionEnterEditScreen = it }
 
                     // Settings font
-                    settingFontName = map[SETTING_FONT_NAME] as String
-                    lineSpacingScaleFactor = (map[LINE_SPACING_SCALE_FACTOR] as Double).toFloat()
-                    settingFontSize = (map[SETTING_FONT_SIZE] as Double).toFloat()
-                    settingCalendarFontScale = (map[SETTING_CALENDAR_FONT_SCALE] as Double).toFloat()
-                    boldStyleEnable = map[SETTING_BOLD_STYLE] as Boolean
+                    (map[SETTING_FONT_NAME] as? String)?.let { settingFontName = it }
+                    (map[LINE_SPACING_SCALE_FACTOR] as? Double)?.let { lineSpacingScaleFactor = it.toFloat() }
+                    (map[SETTING_FONT_SIZE] as? Double)?.let { settingFontSize = it.toFloat() }
+                    (map[SETTING_CALENDAR_FONT_SCALE] as? Double)?.let { settingCalendarFontScale = it.toFloat() }
+                    (map[SETTING_BOLD_STYLE] as? Boolean)?.let { boldStyleEnable = it }
 
                     // Settings Lock
 
                     // ETC.
-                    selectedSymbols = map[SETTING_SELECTED_SYMBOLS] as String
+                    (map[SETTING_SELECTED_SYMBOLS] as? String)?.let { selectedSymbols = it }
 
                     updatePreference = true
                 }

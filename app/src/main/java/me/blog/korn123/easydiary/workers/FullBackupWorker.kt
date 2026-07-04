@@ -11,6 +11,7 @@ import me.blog.korn123.easydiary.helper.*
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 
 class FullBackupWorker(
@@ -35,12 +36,16 @@ class FullBackupWorker(
         fos.close()
 
         mZipHelper.determineFiles(workingPath)
+        // Exclude the backup file itself from being zipped
         mZipHelper.printFileNames()
         mZipHelper.compress(compressFile)
         if (mZipHelper.isOnProgress) {
-//            FileUtils.moveFile(compressFile, destFile)
-            FileUtils.copyFile(compressFile, os)
-            os?.close()
+            os?.let { outputStream ->
+                FileInputStream(compressFile).use { inputStream ->
+                    IOUtils.copy(inputStream, outputStream)
+                }
+                outputStream.close()
+            }
             mZipHelper.updateNotification(NOTIFICATION_COMPRESS_ID, "Export complete", "The exported file size is ${FileUtils.byteCountToDisplaySize(compressFile.length())}")
         } else {
             compressFile.delete()

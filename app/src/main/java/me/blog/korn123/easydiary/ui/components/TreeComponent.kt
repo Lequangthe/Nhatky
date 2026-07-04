@@ -350,7 +350,7 @@ fun TreeContent(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 TreeToolbar(
-                    title = "[Total: $total] category or title",
+                    title = context.getString(R.string.diary_total_count, total),
                     currentQuery = currentQuery,
                     modifier =
                         settingCardModifier
@@ -821,7 +821,7 @@ fun OptionDialog(
             onDismissRequest = onDismiss,
             confirmButton = {
                 TextButton(onClick = onDismiss) {
-                    SimpleText(text = "확인")
+                    SimpleText(text = LocalContext.current.getString(R.string.tree_view_option_confirm))
                 }
             },
             icon = {
@@ -834,7 +834,7 @@ fun OptionDialog(
             },
             title = {
                 SimpleText(
-                    text = "트리뷰 옵션설정",
+                    text = LocalContext.current.getString(R.string.tree_view_option_title),
                     fontWeight = FontWeight.Bold,
                     fontSize =
                         LocalContext.current.config.settingFontSize
@@ -846,7 +846,7 @@ fun OptionDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         SimpleText(
                             modifier = Modifier.weight(1f),
-                            "Node 전체경로 표시",
+                            LocalContext.current.getString(R.string.tree_view_option_full_path),
                         )
                         Switch(
                             modifier = Modifier.padding(start = 10.dp),
@@ -869,7 +869,7 @@ fun OptionDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         SimpleText(
                             modifier = Modifier.weight(1f),
-                            "아이템 카드 스트레치",
+                            LocalContext.current.getString(R.string.tree_view_option_stretch_card),
                         )
                         Switch(
                             modifier = Modifier.padding(start = 10.dp),
@@ -947,12 +947,12 @@ fun BottomToolBar(
                 )
             }
             CustomElevatedButton(
-                text = "New Entry",
+                text = context.getString(R.string.button_new_entry),
                 iconResourceId = R.drawable.ic_edit,
                 iconSize = 16.dp,
             ) { writeDiaryCallback() }
             CustomElevatedButton(
-                text = "TODAY",
+                text = context.getString(R.string.button_today),
                 iconResourceId = R.drawable.ic_time_8_w,
                 iconSize = 16.dp,
             ) {
@@ -960,18 +960,18 @@ fun BottomToolBar(
                 moveToTodayEntry()
             }
             CustomElevatedButton(
-                text = "Expand All",
+                text = context.getString(R.string.button_expand_all),
                 iconResourceId = R.drawable.ic_expand,
                 iconSize = 16.dp,
             ) { expandTreeCallback() }
             CustomElevatedButton(
-                text = "Collapse All",
+                text = context.getString(R.string.button_collapse_all),
                 iconResourceId = R.drawable.ic_collapse,
                 iconSize = 16.dp,
             ) { collapseTreeCallback() }
-            CustomElevatedButton(text = "↑ Top") { scrollTop() }
-            CustomElevatedButton(text = "↓  Bottom") { scrollEnd() }
-            CustomElevatedButton(text = "Clear Focus") {
+            CustomElevatedButton(text = context.getString(R.string.button_top)) { scrollTop() }
+            CustomElevatedButton(text = context.getString(R.string.button_bottom)) { scrollEnd() }
+            CustomElevatedButton(text = context.getString(R.string.button_clear_focus)) {
                 focusManager.clearFocus()
             }
 
