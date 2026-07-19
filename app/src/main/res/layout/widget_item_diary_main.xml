@@ -30,7 +30,7 @@
                 style="@style/text_diary_main_item_inner_contents"
                 android:gravity="center"
                 android:textStyle="bold"
-                android:textSize="40sp"
+                android:textSize="20sp"
                 tools:text="2020년 06월 22일 월요일 09:44" />
         </LinearLayout>
     </LinearLayout>

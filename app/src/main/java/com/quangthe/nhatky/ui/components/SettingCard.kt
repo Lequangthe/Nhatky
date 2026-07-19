@@ -1151,7 +1151,7 @@ fun AlarmCard(
 //                        fontStyle = FontStyle.Italic,
 //                        color = Color(LocalContext.current.config.textColor).copy(alpha),
                             color = Color(LocalContext.current.config.textColor),
-                            fontSize = TextUnit(44F, TextUnitType.Sp),
+                            fontSize = TextUnit(20F, TextUnitType.Sp),
                         ),
                     //                    lineHeight = textUnit.value.times(lineSpacingScaleFactor.sp)
                 )

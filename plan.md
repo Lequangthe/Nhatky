@@ -516,3 +516,26 @@ Dùng lệnh shell để đổi tên hàng loạt khai báo package và import t
 Cập nhật AndroidManifest.xml và các file layout còn sót lại.
 4.
 Di chuyển các file vật lý vào đúng cấu trúc thư mục com/quangthe/nhatky.
+
+### Dọn dẹp toàn diện + Thêm nút Settings + Git sạch – 19/07/2026
+- File thay đổi:
+    - `compose/DiaryMainActivity.kt` (thêm icon Settings ở top bar)
+    - `extensions/Context.kt` (xoá DialogMessageBinding, contentsLength, symbolTextArrow)
+    - `extensions/Activity.kt` (xoá ActivityDiaryMainBinding, dashboard_container, app_bar)
+    - `activities/EasyDiaryActivity.kt` (xoá R.id.compose_view)
+    - `commons/utils/EasyDiaryUtils.kt` (xoá import DiaryFragment chết)
+    - `AndroidManifest.xml` (xoá CAMERA permission tools:node="remove")
+    - `app/build.gradle.kts` (xoá legacy-support-v4, nineoldandroids)
+    - `.gitignore` (thêm .kotlin/, *.aab, *.apk, app/foss/release/)
+- File xoá:
+    - 8 file .kt chết: DDayFragment, DashBoardRankFragment, DiaryFragment, DDayAdapter, DiaryDashboardItemAdapter, TimelineItemAdapter, SafeFlexboxLayoutManager, LabelLayout, ChartBase
+    - 12 layout XML mồ côi: dialog_message, dialog_dday, fragment_dashboard_rank, fragment_dday, fragment_diary, item_dday, item_dday_add, item_diary_dashboard, item_diary_dashboard_calendar, item_timeline, partial_notification, partial_notification_contents
+    - 11 layout-land mồ côi: popup_encryption, partial_edit_photo_container, partial_edit_contents, partial_bottom_toolbar, dialog_feeling_pager, dialog_feeling, activity_pin_lock, activity_diary_main, activity_dashboard, activity_calendar, activity_base_diary_editing
+    - Thư mục dự án: screenshots/, metadata/, .github/, .opencode/, AGENTS.md, google1f12e741993edc25.html, me/blog/korn123/easydiary/ (rỗng)
+- Git: commit sạch (540 files, -34k/+10k lines), push force lên repo mới
+
+### Fix font quá to: widget 40sp→20sp, alarm 44sp→20sp – 19/07/2026
+- File thay đổi:
+    - `res/layout/widget_item_diary_main.xml:33` (40sp → 20sp)
+    - `ui/components/SettingCard.kt:1154` (44sp → 20sp)
+- Chi tiết: User phản hồi chữ quá to ở widget ngày tháng và giờ báo thức. Hạ từ 40sp/44sp xuống 20sp chuẩn.
