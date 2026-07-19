@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<me.blog.korn123.easydiary.views.FixedCardView
+<com.quangthe.nhatky.views.FixedCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -20,7 +20,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_chart_option"
              />
-        <me.blog.korn123.easydiary.views.FixedTextView
+        <com.quangthe.nhatky.views.FixedTextView
             android:id="@+id/chartTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -99,4 +99,4 @@
             android:layout_width="30dp"
             android:layout_height="30dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</me.blog.korn123.easydiary.views.FixedCardView>
+</com.quangthe.nhatky.views.FixedCardView>

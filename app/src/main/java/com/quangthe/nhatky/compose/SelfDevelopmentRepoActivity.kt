@@ -1,0 +1,147 @@
+package com.quangthe.nhatky.compose
+
+import android.os.Bundle
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import com.quangthe.nhatky.commons.utils.FileNode
+import com.quangthe.nhatky.commons.utils.TreeUtils
+import com.quangthe.nhatky.commons.utils.TreeUtils.buildFileTree
+import com.quangthe.nhatky.commons.utils.TreeUtils.flattenTree
+import com.quangthe.nhatky.extensions.applyFullScreenStatusBarTheme
+import com.quangthe.nhatky.extensions.config
+import com.quangthe.nhatky.helper.TreeConstants
+import com.quangthe.nhatky.repositories.DiaryRepository
+import com.quangthe.nhatky.models.Diary
+import com.quangthe.nhatky.ui.components.TreeContent
+import com.quangthe.nhatky.ui.theme.AppTheme
+import com.quangthe.nhatky.viewmodels.TreeViewModel
+
+class SelfDevelopmentRepoActivity : EasyDiaryComposeBaseActivity() {
+    val treeViewModel: TreeViewModel by viewModels()
+    private val diaryRepository = DiaryRepository()
+
+    /***************************************************************************************************
+     *   override functions
+     *
+     ***************************************************************************************************/
+    @OptIn(ExperimentalMaterial3Api::class)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            SelfDevelopmentRepo()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        fetchDiary()
+    }
+
+    /***************************************************************************************************
+     *   Define Compose
+     *
+     ***************************************************************************************************/
+
+    @Composable
+    fun SelfDevelopmentRepo() {
+        val context = LocalContext.current
+        LocalActivity.current?.applyFullScreenStatusBarTheme()
+
+        val enableCardViewPolicy: Boolean by mSettingsViewModel.enableCardViewPolicy.collectAsState()
+        val currentQuery: String by treeViewModel.currentQuery.collectAsState()
+        val treeData: List<Pair<FileNode, Int>> by treeViewModel.treeData.collectAsState()
+        val total: Int by treeViewModel.total.collectAsState()
+
+        fun toggleWholeTree(isExpand: Boolean) {
+            treeViewModel.setTreeData(TreeUtils.toggleWholeTree(treeData, isExpand))
+        }
+
+        fun toggleChildren(fileNode: FileNode) {
+            treeViewModel.setTreeData(TreeUtils.toggleChildren(treeData, fileNode))
+        }
+
+        fetchDiary()
+
+        AppTheme {
+            Scaffold(
+                // 하단 패딩은 수동 관리
+                contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
+                containerColor = Color(config.screenBackgroundColor),
+                content = { innerPadding ->
+                    TreeContent(
+                        innerPadding = innerPadding,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        total = total,
+                        treeData = treeData,
+                        currentQuery = currentQuery,
+                        fetchDiary = { fetchDiary() },
+                        updateQuery = { treeViewModel.setCurrentQuery(it) },
+                        toggleWholeTree = { toggleWholeTree(it) },
+                        folderOnClick = { node ->
+                            // 폴더인 경우, 열고 닫기 토글
+                            toggleChildren(node)
+                        },
+                        resultAPICallback = { /* no-op */ },
+                    )
+                },
+                floatingActionButtonPosition = FabPosition.Center,
+            )
+        }
+    }
+
+    /***************************************************************************************************
+     *   etc functions
+     *
+     ***************************************************************************************************/
+    private suspend fun findDiary(): List<Diary> {
+        diaryRepository.forceRefresh()
+        return diaryRepository
+            .findDiary(
+                query = treeViewModel.currentQuery.value,
+                checkFutureDiaryOption = true,
+            ).sortedBy { diary -> diary.title }
+    }
+
+    fun fetchDiary() {
+        lifecycleScope.launch {
+            val diaryItems = findDiary()
+            val fileNode = buildFileTree(items = diaryItems) { diary ->
+                diary.title!!.split("/").toMutableList()
+            }
+            val newTreeData = flattenTree(fileNode)
+            val originTreeData = treeViewModel.treeData.value
+            treeViewModel.setTreeData(
+                treeData =
+                    newTreeData.map { pair ->
+                        pair.apply {
+                            if (second == TreeConstants.LEVEL_START) first.isShow = true
+
+                            val originNode = originTreeData.find { it.first.fullPath == first.fullPath }
+                            if (originNode != null) {
+                                first.isFolderOpen = originNode.first.isFolderOpen
+                                first.isShow = originNode.first.isShow
+                                first.isParentFolderOpen = originNode.first.isParentFolderOpen
+                            }
+                        }
+                    },
+            )
+            treeViewModel.setTotal(diaryItems.size)
+        }
+    }
+}

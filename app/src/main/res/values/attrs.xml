@@ -11,6 +11,13 @@
     <declare-styleable name="ItemCardView">
         <attr name="applyAdditionHorizontalMargin" format="boolean" />
     </declare-styleable>
+    <declare-styleable name="LocationContainerView">
+        <attr name="displayMode" format="enum">
+            <enum name="editing" value="0" />
+            <enum name="readOnly" value="1" />
+            <enum name="compact" value="2" />
+        </attr>
+    </declare-styleable>
     <declare-styleable name="FixedTextView">
         <attr name="applyGlobalSize" format="boolean" />
         <attr name="applyGlobalColor" format="boolean" />

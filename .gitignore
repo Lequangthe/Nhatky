@@ -3,15 +3,21 @@
 .idea/
 build
 local.properties
+.kotlin/
 
 app/build
 app/*.apk
 app/*.iml
 app/release
 app/debug.keystore
+app/foss/release/
 app/gmsProd/release/
 
 app/src/gmsDev/res/drawable/ic_*
 app/src/gmsProd/res/drawable/ic_*
 app/src/gmsProd/res/**/*.png
 app/src/gmsProd/res/values/keys.xml
+
+# Build artifacts
+*.aab
+*.apk

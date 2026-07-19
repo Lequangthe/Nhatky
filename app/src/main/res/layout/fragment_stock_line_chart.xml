@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<me.blog.korn123.easydiary.views.FixedCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.quangthe.nhatky.views.FixedCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/card_dashboard"
@@ -19,7 +19,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible" />
 
-        <me.blog.korn123.easydiary.views.FixedTextView
+        <com.quangthe.nhatky.views.FixedTextView
             android:id="@+id/chartTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
             app:layout_constraintBottom_toTopOf="@+id/lineChart"
             app:layout_constraintTop_toBottomOf="@+id/image_expend_chart">
 
-            <me.blog.korn123.easydiary.views.FixedCardView
+            <com.quangthe.nhatky.views.FixedCardView
                 android:id="@+id/card_multi_chart_mode"
                 style="@style/card_dashboard_inner"
                 app:contentPaddingTop="5dp"
@@ -67,8 +67,8 @@
                     android:text="Options"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-            </me.blog.korn123.easydiary.views.FixedCardView>
-            <me.blog.korn123.easydiary.views.FixedCardView
+            </com.quangthe.nhatky.views.FixedCardView>
+            <com.quangthe.nhatky.views.FixedCardView
                 android:id="@+id/card_from_date"
                 style="@style/card_dashboard_inner"
                 app:contentPaddingTop="5dp"
@@ -78,8 +78,8 @@
                     android:text="From"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-            </me.blog.korn123.easydiary.views.FixedCardView>
-            <me.blog.korn123.easydiary.views.FixedCardView
+            </com.quangthe.nhatky.views.FixedCardView>
+            <com.quangthe.nhatky.views.FixedCardView
                 android:id="@+id/card_to_date"
                 style="@style/card_dashboard_inner"
                 app:contentPaddingTop="5dp"
@@ -89,7 +89,7 @@
                     android:text="To"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-            </me.blog.korn123.easydiary.views.FixedCardView>
+            </com.quangthe.nhatky.views.FixedCardView>
         </com.google.android.flexbox.FlexboxLayout>
 
         <com.github.mikephil.charting.charts.CombinedChart
@@ -121,4 +121,4 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</me.blog.korn123.easydiary.views.FixedCardView>
+</com.quangthe.nhatky.views.FixedCardView>

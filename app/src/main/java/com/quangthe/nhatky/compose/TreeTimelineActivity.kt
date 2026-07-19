@@ -1,0 +1,227 @@
+package com.quangthe.nhatky.compose
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import com.quangthe.nhatky.commons.utils.FileNode
+import com.quangthe.nhatky.commons.utils.TreeUtils
+import com.quangthe.nhatky.commons.utils.TreeUtils.buildFileTree
+import com.quangthe.nhatky.commons.utils.TreeUtils.flattenTree
+import com.quangthe.nhatky.extensions.applyFullScreenStatusBarTheme
+import com.quangthe.nhatky.extensions.config
+import com.quangthe.nhatky.extensions.showBetaFeatureMessage
+import com.quangthe.nhatky.helper.TreeConstants
+import com.quangthe.nhatky.repositories.DiaryRepository
+import com.quangthe.nhatky.helper.TreeConstants.IS_TREE_TIMELINE_LAUNCH_MODE_DEFAULT
+import com.quangthe.nhatky.models.Diary
+import com.quangthe.nhatky.ui.components.TreeContent
+import com.quangthe.nhatky.ui.theme.AppTheme
+import com.quangthe.nhatky.viewmodels.TreeViewModel
+
+class TreeTimelineActivity : EasyDiaryComposeBaseActivity() {
+    val treeViewModel: TreeViewModel by viewModels()
+    private val diaryRepository = DiaryRepository()
+
+    /***************************************************************************************************
+     *   override functions
+     *
+     ***************************************************************************************************/
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val isResultAPI = intent.getBooleanExtra(IS_TREE_TIMELINE_LAUNCH_MODE_DEFAULT, true).not()
+        setContent {
+            TreeTimeline(isResultAPI = isResultAPI)
+        }
+        showBetaFeatureMessage()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        fetchDiary()
+    }
+
+    /***************************************************************************************************
+     *   Define Compose
+     *
+     ***************************************************************************************************/
+    @Composable
+    fun TreeTimeline(isResultAPI: Boolean = false) {
+        val context = LocalContext.current
+        LocalActivity.current?.applyFullScreenStatusBarTheme()
+
+        val enableCardViewPolicy: Boolean by mSettingsViewModel.enableCardViewPolicy.collectAsState()
+        val currentQuery: String by treeViewModel.currentQuery.collectAsState()
+        val treeData: List<Pair<FileNode, Int>> by treeViewModel.treeData.collectAsState()
+        val total: Int by treeViewModel.total.collectAsState()
+
+        fun toggleWholeTree(isExpand: Boolean) {
+            treeViewModel.setTreeData(TreeUtils.toggleWholeTree(treeData, isExpand))
+        }
+
+        fun toggleChildren(selectedNode: FileNode) {
+            treeViewModel.setTreeData(TreeUtils.toggleChildren(treeData, selectedNode))
+        }
+
+        fetchDiary()
+
+        AppTheme {
+            Scaffold(
+                // 하단 패딩은 수동 관리
+                contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
+                containerColor = Color(config.screenBackgroundColor),
+                content = { innerPadding ->
+                    TreeContent(
+                        innerPadding = innerPadding,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        isReverseMode = true,
+                        showDebugCard = false,
+                        total = total,
+                        treeData = treeData,
+                        currentQuery = currentQuery,
+                        isResultAPI = isResultAPI,
+                        fetchDiary = { fetchDiary() },
+                        updateQuery = { treeViewModel.setCurrentQuery(it) },
+                        toggleWholeTree = { toggleWholeTree(it) },
+                        folderOnClick = { node ->
+                            // 폴더인 경우, 열고 닫기 토글
+                            toggleChildren(node)
+                        },
+                        resultAPICallback = { sequence ->
+                            val resultIntent =
+                                Intent().apply {
+                                    putExtra("sequence", sequence)
+                                }
+                            setResult(RESULT_OK, resultIntent)
+                            finish()
+                        },
+                    )
+                },
+            )
+        }
+    }
+
+    @Composable
+    @Preview(heightDp = 800)
+    private fun TreeTimelinePreview() {
+        AppTheme {
+            var total by remember { mutableIntStateOf(0) }
+            var treeData by remember { mutableStateOf(emptyList<Pair<FileNode, Int>>()) }
+
+            fun findDiary(): List<Diary> {
+                val list = mutableListOf<Diary>()
+                list.add(
+                    Diary().apply {
+                        sequence = 1
+                        dateString = "2023-01-01"
+                        title = "New Year"
+                    },
+                )
+                list.add(
+                    Diary().apply {
+                        sequence = 2
+                        dateString = "2023-02-01"
+                        title = "New Year Party"
+                    },
+                )
+                return list
+            }
+
+            fun fetchDiary() {
+                val diaryItems = findDiary()
+                val fileNode =
+                    buildFileTree(diaryItems, addOptionalTitle = true) { diary ->
+                        "${diary.dateString}".split("-").toMutableList()
+                    }
+                val originTreeData = flattenTree(fileNode, sortOption = TreeConstants.SORT_OPTION_ASC)
+                treeData =
+                    originTreeData.map { pair ->
+                        if (pair.second == 1) pair.first.isShow = true
+                        pair
+                    }
+                total = diaryItems.size
+            }
+            fetchDiary()
+            Scaffold(
+                // 하단 패딩은 수동 관리
+                contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
+                content = { innerPadding ->
+                    TreeContent(
+                        innerPadding = innerPadding,
+                        total = total,
+                        treeData = treeData,
+                        currentQuery = "",
+                        fetchDiary = { fetchDiary() },
+                        updateQuery = {},
+                        toggleWholeTree = {},
+                        folderOnClick = {},
+                        resultAPICallback = { /* no-op */ },
+                    )
+                },
+            )
+        }
+    }
+
+    /***************************************************************************************************
+     *   etc functions
+     *
+     ***************************************************************************************************/
+
+    private suspend fun findDiary(): List<Diary> =
+        diaryRepository.findDiary(
+            query = treeViewModel.currentQuery.value,
+            checkFutureDiaryOption = true,
+        )
+
+    fun fetchDiary() {
+        lifecycleScope.launch {
+            val diaryItems = findDiary()
+            val fileNode =
+                buildFileTree(
+                    items = diaryItems,
+                    addOptionalTitle = true,
+                    addOptionalSortPrefix = true,
+                ) { diary ->
+                "${diary.dateString}".split("-").toMutableList()
+            }
+        val newTreeData = flattenTree(node = fileNode, sortOption = TreeConstants.SORT_OPTION_ASC)
+        val originTreeData = treeViewModel.treeData.value
+        treeViewModel.setTreeData(
+            treeData =
+                newTreeData.map { pair ->
+                    pair.apply {
+                        if (second == TreeConstants.LEVEL_START) first.isShow = true
+
+                        // 이전 상태 유지
+                        val originNode = originTreeData.find { it.first.fullPath == first.fullPath }
+                        if (originNode != null) {
+                            first.isFolderOpen = originNode.first.isFolderOpen
+                            first.isShow = originNode.first.isShow
+                            first.isParentFolderOpen = originNode.first.isParentFolderOpen
+                        }
+                    }
+                },
+        )
+        treeViewModel.setTotal(diaryItems.size)
+        }
+    }
+}

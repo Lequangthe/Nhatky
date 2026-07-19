@@ -1250,7 +1250,7 @@ abstract class CaldroidFragmentEx : DialogFragment() {
 
         val view =
             localInflater.inflate(
-                me.blog.korn123.easydiary.R.layout.partial_calendar_view,
+                com.quangthe.nhatky.R.layout.partial_calendar_view,
                 container,
                 false,
             )

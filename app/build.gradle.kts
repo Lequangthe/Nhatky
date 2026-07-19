@@ -4,7 +4,6 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-kapt")
-    id("realm-android")
     id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
 }
 
@@ -28,7 +27,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "me.blog.korn123.easydiary"
+        applicationId = "com.quangthe.nhatky"
         minSdk = 23
         targetSdk = appCompileSdk
         versionCode = 346
@@ -39,20 +38,6 @@ android {
         renderscriptTargetApi = 18
         renderscriptSupportModeEnabled = true
         signingConfig = signingConfigs.getByName("config")
-    }
-
-    flavorDimensions += "buildType"
-    productFlavors {
-        create("gmsProd") {
-            dimension = "buildType"
-            signingConfig = signingConfigs.getByName("config")
-        }
-    }
-
-    sourceSets {
-        getByName("gmsProd") {
-            java.srcDirs("src/main/java", "src/gmsProd/java")
-        }
     }
 
     buildFeatures {
@@ -94,16 +79,16 @@ android {
 
     kotlin {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_18)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_18
-        targetCompatibility = JavaVersion.VERSION_18
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    namespace = "me.blog.korn123.easydiary"
+    namespace = "com.quangthe.nhatky"
 
     lint {
         abortOnError = false
@@ -124,7 +109,6 @@ dependencies {
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.vectordrawable:vectordrawable:1.2.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.biometric:biometric:1.1.0")
@@ -135,11 +119,14 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.8.9")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.work:work-runtime-ktx:2.11.0")
-    implementation("androidx.work:work-runtime-ktx:2.10.0") {
-        exclude(group = "com.google.guava", module = "listenablefuture")
-    }
     implementation("androidx.browser:browser:1.9.0")
     implementation("androidx.core:core-splashscreen:1.2.0")
+
+    // room
+    val room_version = "2.8.4"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
 
     // compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
@@ -181,7 +168,6 @@ dependencies {
     implementation("com.github.woxingxiao:BubbleSeekBar:3.20")
     implementation("com.tbuonomo:dotsindicator:5.1.0")
     implementation("id.zelory:compressor:2.1.1")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.20")
     implementation("com.github.PhilJay:MPAndroidChart:v3.0.3")
     implementation("com.github.chrisbanes:PhotoView:2.1.3")
     implementation("com.github.QuadFlask:colorpicker:0.0.13") // Version Change Prohibited: This is the last version available for download from JitPack.
@@ -194,7 +180,6 @@ dependencies {
     }
     implementation("com.github.ksoichiro:android-observablescrollview:1.6.0")
     implementation("com.roomorama:caldroid:3.0.1")
-    implementation("com.nineoldandroids:library:2.4.0")
     implementation("com.simplecityapps:recyclerview-fastscroll:2.0.1")
     implementation("org.jasypt:jasypt:1.9.3")
 
@@ -206,7 +191,6 @@ dependencies {
     implementation("io.noties.markwon:ext-strikethrough:4.6.2")
     implementation("io.noties.markwon:linkify:4.6.2")
     implementation("io.noties:prism4j:2.0.0")
-    implementation("com.squareup:seismic:1.0.3")
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation("com.squareup.retrofit2:converter-scalars:3.0.0")

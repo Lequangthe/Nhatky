@@ -2,6 +2,9 @@
     <string name="app_name">Easy Diary</string>
     <string name="common_create_seconds">Creation Seconds</string>
     <string name="create_diary_title">Write Diary</string>
+    <string name="modify_diary_title">Modify Diary</string>
+    <string name="diary_title_hint">Title</string>
+    <string name="diary_contents_hint">Write your diary here...</string>
     <string name="write_date">Date</string>
     <string name="request_title_message">Please enter a title.</string>
     <string name="request_content_message">Please enter your content.</string>
@@ -11,7 +14,6 @@
     <string name="gallery_intent_not_found_message">The Gallery app is not installed or is disabled.</string>
     <string name="create_diary_showcase_button_1">Next</string>
     <string name="create_diary_showcase_button_2">Close</string>
-    <string name="create_diary_showcase_title_1">Weather</string>
     <string name="create_diary_showcase_title_2">Title</string>
     <string name="create_diary_showcase_title_3">Contents</string>
     <string name="create_diary_showcase_title_4">Attach photo</string>
@@ -20,7 +22,6 @@
     <string name="create_diary_showcase_title_7">Pick date</string>
     <string name="create_diary_showcase_title_8">Pick time</string>
     <string name="create_diary_showcase_title_9">Save</string>
-    <string name="create_diary_showcase_message_1">Select the weather for the diary creation time. Weather selection is not mandatory.</string>
     <string name="create_diary_showcase_message_2">Type the title of the diary. Entering a subject is not mandatory.</string>
     <string name="create_diary_showcase_message_3">Enter diaries, notes, summary notes, and more.</string>
     <string name="create_diary_showcase_message_4">Attach a photo to the diary.</string>
@@ -145,19 +146,6 @@
     <string name="menu_timeline">Timeline</string>
     <string name="post_card">Diary Postcard</string>
     <string name="menu_delete">Delete</string>
-
-    <string name="button_today">TODAY</string>
-    <string name="button_menu">MENU</string>
-    <string name="button_expand_all">Expand All</string>
-    <string name="button_collapse_all">Collapse All</string>
-    <string name="button_top">↑ Top</string>
-    <string name="button_bottom">↓ Bottom</string>
-    <string name="button_clear_focus">Clear Focus</string>
-    <string name="tree_view_option_confirm">OK</string>
-    <string name="tree_view_option_title">Tree View Option Settings</string>
-    <string name="tree_view_option_full_path">Show node full path</string>
-    <string name="tree_view_option_stretch_card">Stretch item card</string>
-    <string name="diary_total_count">[Total: %d] category or title</string>
 
     <!--  //////////////////////////////////////////////////////////////////////////////////////////////  -->
     <!--  Resources added since version 1.4.41 here.                                                      -->
@@ -756,11 +744,11 @@
     </string>
     <string name="release_306">
         v1.4.306.202402250 / 2024.02.25\n
-        Added Android 14 SCHEDULE_EXACT_ALARM permission handling
+        Android 14 SCHEDULE_EXACT_ALARM permission acquisition
     </string>
     <string name="release_307">
         v1.4.307.202406020 / 2024.06.02\n
-        Discontinuation of support for devices prior to API 5.0 (Android Lollipop)\n
+        Discontinuation of support for devices prior to Android Version 5.0 (Android Lollipop)\n
         Apply Jetpack Compose to some screens to improve functionality\n
         Add option to use quick settings
     </string>
@@ -879,8 +867,6 @@
     <string name="seconds_picker">Select seconds</string>
     <string name="save_diary">Save diary</string>
     <string name="photo_registration">Photo registration</string>
-    <string name="record_audio">Record Audio</string>
-    <string name="record_video">Record Video</string>
     <string name="zoom_in">Zoom In</string>
     <string name="zoom_out">Zoom Out</string>
     <string name="edit_diary">Edit diary</string>
@@ -899,28 +885,28 @@
     <string name="multi_picker_option_title">Multi picker setting</string>
     <string name="multi_picker_option_summary">When attaching a diary photo, I use the multi-picker provided in the diary without using the gallery app. When Multi-picker is enabled, you can attach multiple pictures at once.</string>
     <string name="preferences_category_backup_restore">Backup and Restore</string>
-    <string name="preferences_category_backup_restore_sub">Google Drive &amp; Calendar</string>
+    <string name="preferences_category_backup_restore_sub">Google API</string>
     <string name="backup_attach_photo_title">Backup attached photos</string>
     <string name="backup_attach_photo_summary">Backup your attached photos to Google Drive. This feature may not work on some devices due to beta service.</string>
     <string name="recover_attach_photo_title">Recover attached photos</string>
     <string name="recover_attach_photo_summary">Recover attached photos backed up to Google Drive. This feature may not work on some devices due to beta service.</string>
-    <string name="notification_msg_device_file_count">%s Number of backup files: %d%s</string>
+    <string name="notification_msg_device_file_count">%1$s Number of backup files: %2$d%3$s</string>
     <string name="notification_msg_upload_file_count">Number of files to upload</string>
     <string name="notification_msg_upload_invalid">All backup target files already exist.</string>
     <string name="notification_msg_upload_empty">The file to be backed up does not exist.</string>
     <string name="notification_msg_upload_progress">Uploading…</string>
     <string name="notification_msg_upload_complete">Upload Complete</string>
-    <string name="notification_msg_upload_success">%s Upload Success: %d%s</string>
-    <string name="notification_msg_upload_fail">%s Upload Fail: %d%s</string>
-    <string name="notification_msg_google_drive_file_count">%s Number of recover files: %d%s</string>
+    <string name="notification_msg_upload_success">%1$s Upload Success: %2$d%3$s</string>
+    <string name="notification_msg_upload_fail">%1$s Upload Fail: %2$d%3$s</string>
+    <string name="notification_msg_google_drive_file_count">%1$s Number of recover files: %2$d%3$s</string>
     <string name="notification_msg_download_file_count">Number of files to download</string>
     <string name="notification_msg_download_invalid">All recovery target files already exist.</string>
     <string name="notification_msg_download_empty">The file to be recovered does not exist.</string>
     <string name="notification_msg_download_progress">Downloading…</string>
     <string name="notification_msg_download_complete">Download Complete</string>
-    <string name="notification_msg_download_success">%s Download Success: %d%s</string>
-    <string name="notification_msg_download_fail">%s Download Fail: %d%s</string>
-    <string name="notification_msg_duplicate_file_count">%s Number of exist files: %d%s</string>
+    <string name="notification_msg_download_success">%1$s Download Success: %2$d%3$s</string>
+    <string name="notification_msg_download_fail">%1$s Download Fail: %2$d%3$s</string>
+    <string name="notification_msg_duplicate_file_count">%1$s Number of exist files: %2$d%3$s</string>
     <string name="preferences_category_lock">Lock setting</string>
     <string name="fingerprint_lock_title">Fingerprint lock</string>
     <string name="fingerprint_lock_summary">If the device supports fingerprint recognition and has a registered fingerprint, lock the application with the registered fingerprint.</string>
@@ -957,8 +943,6 @@
     <string name="export_excel_header_attach_photo_path">Attached photo path</string>
     <string name="export_excel_header_attach_photo_size">Attached photo size</string>
     <string name="export_excel_header_write_time_millis">Write date\n(Since January 1st 1970 in milliseconds.)</string>
-    <string name="export_excel_header_weather">Weather</string>
-    <string name="export_excel_header_symbol">Symbol</string>
     <string name="export_excel_header_is_all_day">AllDay</string>
     <string name="faq_title">FAQs</string>
     <string name="faq_description">You can check frequently asked questions and answers.</string>
@@ -966,9 +950,6 @@
     <string name="privacy_policy_title">Privacy Policy</string>
     <string name="privacy_policy_description">Easy Diary Privacy Policy.</string>
     <string name="privacy_policy_url">https://raw.githubusercontent.com/hanjoongcho/aaf-easydiary/master/Privacy.md</string>
-    <string name="diary_symbol">Diary Symbol</string>
-    <string name="diary_symbol_guide_message">Choose a symbol that matches the current weather or diary content.</string>
-    <string name="category_weather">Weather</string>
     <string name="category_emotion">Emotion</string>
     <string name="category_daily">Daily life&amp;Things</string>
     <string name="category_food">Food&amp;Beverage</string>
@@ -976,23 +957,20 @@
     <string name="category_landscape">Landscape&amp;Building</string>
     <string name="rotate_photo">Rotate</string>
     <string name="task_progress_message">Request work in process…</string>
-    <string name="open_realm_file_title">Diary Recovery</string>
-    <string name="open_realm_file_message">Please choose a recovery target file.</string>
+    <string name="open_database_file_title">Diary Recovery</string>
+    <string name="open_database_file_message">Please choose a recovery target file.</string>
     <string name="backup_completed_message">Diary backup job is complete.</string>
     <string name="backup_confirm_message">Do you want to start an attached photo backup task?</string>
     <string name="recover_confirm_attached_photo">Do you want to start an attached photo recovery task?</string>
-    <string name="category_symbol">Symbol</string>
     <string name="statistics_creation_time">Statistics by creation time</string>
-    <string name="statistics_symbol_all">All statistics by symbol</string>
-    <string name="statistics_symbol_top_ten">Top 10 statistics by symbol</string>
     <string name="category_flag">FLAG</string>
     <string name="preferences_category_backup_restore_device">Backup and Restore</string>
     <string name="preferences_category_backup_restore_device_sub">Device Storage</string>
-    <string name="export_realm_title">Backup diary</string>
-    <string name="export_realm_description">Back up database files except the attached photo to the device storage.\nSince files backed up in the internal storage are deleted when the application is deleted, use the external public storage or Google Drive backup function to permanently store the created data.</string>
-    <string name="export_realm_guide_message">The database file has been saved to the device storage at the path below.</string>
-    <string name="import_realm_title">Recover diary</string>
-    <string name="import_realm_description">Recovers database files from device storage except attachments.</string>
+    <string name="export_database_title">Backup diary</string>
+    <string name="export_database_description">Back up database files except the attached photo to the device storage.\nSince files backed up in the internal storage are deleted when the application is deleted, use the external public storage or Google Drive backup function to permanently store the created data.</string>
+    <string name="export_database_guide_message">The database file has been saved to the device storage at the path below.</string>
+    <string name="import_database_title">Recover diary</string>
+    <string name="import_database_description">Recovers database files from device storage except attachments.</string>
     <string name="diary_item_count">+%d</string>
     <string name="calendar_start_day_title">Calendar start day</string>
     <string name="calendar_start_day_summary">Set the start day of the week.</string>
@@ -1026,19 +1004,18 @@
     <string name="dashboard_title_last_month">Last Month</string>
     <string name="dashboard_title_last_week">Last Week</string>
     <string name="dashboard_guide_message">There is not enough data to generate ranking data. You need to write a diary using at least 4 symbols to activate dash board ranking.</string>
-    <string name="delete_realm_title">Delete backup file</string>
-    <string name="delete_realm_description">Delete the backup file stored in the storage.</string>
+    <string name="delete_database_title">Delete backup file</string>
+    <string name="delete_database_description">Delete the backup file stored in the storage.</string>
     <string name="menu_dashboard">Dashboard</string>
     <string name="dashboard_title_backup_drive">Google Drive Backup History</string>
     <string name="dashboard_title_backup_local">Local Device Backup History</string>
     <string name="dashboard_backup_guide_message">No backup information</string>
     <string name="last_diary_backup_time">Diary last backup time:</string>
     <string name="last_photo_backup_time">Attached photo last backup time:</string>
-    <string name="backup_full_title">Full Backup (Choose Location)</string>
-    <string name="backup_full_description">Compress and back up all diary data (database, photos, audio, video) to a ZIP file at your chosen location.</string>
-    <string name="restore_full_title">Full Restore (Pick ZIP File)</string>
-    <string name="restore_full_description">Restore all diary data from a previously created backup ZIP file.</string>
-    <string name="diary_symbol_search_message">Select the diary symbol you want to filter.</string>
+    <string name="export_full_backup_title">[BETA] Backup full data</string>
+    <string name="export_full_backup_description">Compress and back up all the data related to the diary such as database, attached photo, post card, font, etc. into one file.\nThis feature is a beta feature therefore may not work properly on some devices.</string>
+    <string name="import_full_backup_title">[BETA] Recover full data</string>
+    <string name="import_full_backup_description">Decompress and recover all the data related to the diary such as database, attached photo, post card, font, etc.\nThis feature is a beta feature therefore may not work properly on some devices.</string>
     <string name="calendar_sort_ascending">Ascending</string>
     <string name="calendar_sort_descending">Descending</string>
     <string name="calendar_sort_title">Calendar sort option</string>
@@ -1070,6 +1047,9 @@
     <string name="delete_selected_items_confirm">Are you sure you want to delete the %d selected items?</string>
     <string name="duplicate_selected_items_confirm">Are you sure you want to duplicate the %d selected items?</string>
     <string name="no_items_warning">There are no items selected.</string>
+    <string name="no_diary_message">There is no written diary.</string>
+    <string name="no_note_message">There are no notes.</string>
+    <string name="no_task_message">There are no tasks.</string>
     <string name="preferences_category_schedule">Schedule setting</string>
     <string name="schedule_time">Day and time</string>
     <string name="schedule_type">Schedule type</string>
@@ -1097,10 +1077,6 @@
     <string name="location_info_description">The location information is displayed in the diary using GPS information.</string>
     <string name="location_info_error_message">Location information cannot be received.</string>
     <string name="category_tasks">Task</string>
-    <string name="task_symbol_top_order_title">Align the task symbol to the top</string>
-    <string name="task_symbol_top_order_description">If the type of Task Symbol is TODO or DOING among the diaries to which the task symbol is applied, it is arranged at the top of the list.</string>
-    <string name="dashboard_title_daily_symbol_tile">Filtering of symbol usage by day based on a year</string>
-    <string name="symbol_filter_picker_remove_guide_message">At least one symbol must be selected.</string>
     <string name="title_dialog_postcard_photo_option">Photo crop and filter settings</string>
     <string name="msg_check_force_single_photo">Change to expose only one photo in the photo area of the post card.\nIf more than one photo is registered, you can swipe to view other photos.</string>
     <string name="load_auto_save_diary_title">Load auto-save diary</string>
@@ -1128,7 +1104,6 @@
     <string name="enable_welcome_dashboard_popup_description">When this option is enabled, the dashboard will automatically open as a popup when the app is restarted after closing.</string>
     <string name="year_message_format">{0,number} {0,choice,1#Year|1&lt;Years}</string>
     <string name="day_message_format">{0,number} {0,choice,1#Day|1&lt;Days}</string>
-    <string name="recently_used_symbol">Recently Used</string>
     <string name="datetime_setting_title">Datetime Formatting</string>
     <string name="datetime_setting_summary">Set the date and time display format. (The set display format is applied to most screens except for the timeline and diary creation screens.)</string>
     <string name="markdown_setting_title">Markdown Syntax</string>
@@ -1163,16 +1138,64 @@
     <string name="link_entry_as_parent">As Parent</string>
     <string name="link_entry_as_child">As Child</string>
     <string name="link_entry_later">Later</string>
+    <string name="tab_diary">Diary</string>
+    <string name="tab_note">Note</string>
+    <string name="tab_task">Task</string>
+    <string name="note_title_hint">Note Title</string>
+    <string name="note_contents_hint">Write your note here...</string>
+    <string name="task_title_hint">Task Name</string>
+    <string name="task_contents_hint">Enter task details...</string>
     <string name="menu_speech_to_text">Speech To Text</string>
-    <string name="media_storage_title">Media Storage Location</string>
-    <string name="media_storage_summary">Choose a folder to save audio and video recordings</string>
-    <string name="media_storage_choose">Select Folder</string>
-    <string name="media_storage_clear">Reset to Default</string>
-    <string name="media_storage_default">Default (App internal storage)</string>
-    <string name="media_storage_selected">Current: %s</string>
-    <string name="pick_video">Pick Video</string>
+    <string name="diary_symbol">Symbol</string>
+    <string name="record_audio">Record Audio</string>
+    <string name="record_video">Record Video</string>
     <string name="pick_audio">Pick Audio</string>
-    <string name="add_video_options">Add Video Options</string>
+    <string name="pick_video">Pick Video</string>
     <string name="add_audio_options">Add Audio Options</string>
+    <string name="add_video_options">Add Video Options</string>
     <string name="stop">Stop</string>
+    <string name="diary_total_count">Total entries: %d</string>
+    <string name="button_today">Today</string>
+    <string name="button_menu">Menu</string>
+    <string name="button_expand_all">Expand All</string>
+    <string name="button_collapse_all">Collapse All</string>
+    <string name="button_top">Top</string>
+    <string name="button_bottom">Bottom</string>
+    <string name="button_clear_focus">Clear Focus</string>
+    <string name="tree_view_option_title">Tree View Options</string>
+    <string name="tree_view_option_confirm">Confirm</string>
+    <string name="tree_view_option_full_path">Full Path</string>
+    <string name="tree_view_option_stretch_card">Stretch Card</string>
+    <string name="cleanup_media_title">Storage Cleanup</string>
+    <string name="cleanup_media_summary">Delete photos, audio, and video files that are no longer linked to any diary entries.</string>
+    <string name="cleanup_media_confirm">Do you want to delete %d orphaned media files to free up space?</string>
+    <string name="cleanup_media_no_files">No orphaned media files found.</string>
+    <string name="cleanup_media_deleted_count">%d files deleted successfully.</string>
+    <string name="recently_used_symbol">Recently Used</string>
+    <string name="category_symbol">Symbol</string>
+    <string name="category_weather">Weather</string>
+    <string name="create_diary_showcase_message_1">You can create various types of entries.</string>
+    <string name="create_diary_showcase_title_1">New Entry</string>
+    <string name="dashboard_title_daily_symbol_tile">Daily Symbol Status</string>
+    <string name="diary_symbol_guide_message">Select a symbol for your diary.</string>
+    <string name="diary_symbol_search_message">Search for symbols.</string>
+    <string name="export_excel_header_symbol">Symbol</string>
+    <string name="export_excel_header_weather">Weather</string>
+    <string name="media_storage_choose">Choose folder</string>
+    <string name="media_storage_clear">Reset to default</string>
+    <string name="media_storage_default">Default (internal storage)</string>
+    <string name="media_storage_selected">Current: %s</string>
+    <string name="media_storage_summary">Choose where to store your media files</string>
+    <string name="media_storage_title">Media Storage</string>
+    <string name="backup_full_title">Full Backup</string>
+    <string name="backup_full_description">Backup all your data to a ZIP file.</string>
+    <string name="restore_full_title">Full Restore</string>
+    <string name="restore_full_description">Restore all your data from a ZIP file.</string>
+    <string name="statistics_symbol_all">All Symbols</string>
+    <string name="statistics_symbol_top_ten">Top 10 Symbols</string>
+    <string name="symbol_filter_picker_remove_guide_message">Remove symbol filter.</string>
+    <string name="task_symbol_top_order_description">Set symbol display order.</string>
+    <string name="task_symbol_top_order_title">Symbol Order</string>
+    <string name="update_location">Update Location</string>
+    <string name="view_on_map">View on Map</string>
 </resources>

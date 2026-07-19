@@ -1,41 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:visibility="visible"
-    android:visibility="gone"
-    android:id="@+id/layout_banner_container"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutBannerContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <com.zhpan.bannerview.BannerViewPager
-        android:id="@+id/banner_history"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-    <me.blog.korn123.easydiary.views.FixedCardView
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
-        android:layout_marginStart="5dp"
-        app:fixedAppcompatPadding="true"
-        app:contentPadding="5dp"
-        app:cardBackgroundColor="?attr/colorPrimary"
-        android:alpha="0.8">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:visibility="gone"
+    tools:visibility="visible">
 
-        <me.blog.korn123.easydiary.views.FixedTextView
-            android:id="@+id/text_description"
-            android:layout_width="wrap_content"
+    <com.quangthe.nhatky.views.FixedCardView
+        style="@style/AppCard"
+        android:layout_height="wrap_content"
+        app:fixedAppcompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textColor="#FFFFFF"
-            android:textSize="13dp"
-            app:applyGlobalColor="false"
-            app:applyGlobalSize="false"
-            tools:text="100" />
-    </me.blog.korn123.easydiary.views.FixedCardView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <com.quangthe.nhatky.views.FixedTextView
+                android:id="@+id/textDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="Photos from 1 year ago" />
+
+            <com.zhpan.bannerview.BannerViewPager
+                android:id="@+id/bannerHistory"
+                android:layout_width="match_parent"
+                android:layout_height="160dp" />
+
+        </LinearLayout>
+    </com.quangthe.nhatky.views.FixedCardView>
+
+</LinearLayout>

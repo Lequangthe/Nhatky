@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<me.blog.korn123.easydiary.views.FixedCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.quangthe.nhatky.views.FixedCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/card_dashboard"
@@ -7,7 +7,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <me.blog.korn123.easydiary.views.FixedTextView
+        <com.quangthe.nhatky.views.FixedTextView
             android:id="@+id/chartTitle"
             android:layout_margin="@dimen/dashboard_title_padding"
             android:visibility="gone"
@@ -55,4 +55,4 @@
             android:layout_width="30dp"
             android:layout_height="30dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</me.blog.korn123.easydiary.views.FixedCardView>
+</com.quangthe.nhatky.views.FixedCardView>

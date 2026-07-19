@@ -1,6 +1,6 @@
 #noinspection ShrinkerUnresolvedReference
--keep class me.blog.korn123.easydiary.** { *; }
--dontwarn me.blog.korn123.easydiary.**
+-keep class com.quangthe.nhatky.** { *; }
+-dontwarn com.quangthe.nhatky.**
 
 -keep class com.simplemobiletools.** { *; }
 -dontwarn com.simplemobiletools.**
@@ -68,5 +68,5 @@
 -keep class * extends com.google.gson.reflect.TypeToken
 
 # Keep your data classes used with Gson (replace with your actual package)
--keep class me.blog.korn123.easydiary.models.** { *; }
+-keep class com.quangthe.nhatky.models.** { *; }
 -keep class your.package.name.data.** { *; }
