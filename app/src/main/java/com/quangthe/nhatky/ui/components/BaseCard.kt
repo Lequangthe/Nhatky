@@ -1,5 +1,6 @@
 package com.quangthe.nhatky.ui.components
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -39,24 +40,18 @@ fun SimpleText(
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val density = LocalDensity.current
-    val textUnit =
-        with(density) {
-            val temp = fontSize.toDp()
-            temp.toSp()
-        }
+    val fontSizeSp = with(density) { fontSize.toSp() }
 
     Text(
         modifier = modifier,
         text = text,
-        style =
-            TextStyle(
-                fontFamily = fontFamily,
-                fontWeight = fontWeight,
-//                        fontStyle = FontStyle.Italic,
-                color = fontColor.copy(alpha),
-                fontSize = TextUnit(textUnit.value, TextUnitType.Sp),
-            ),
-        lineHeight = textUnit.value.times(lineSpacingScaleFactor.sp),
+        style = MaterialTheme.typography.bodyMedium.copy(
+            fontFamily = fontFamily,
+            fontWeight = fontWeight,
+            color = fontColor.copy(alpha),
+            fontSize = fontSizeSp,
+            lineHeight = fontSizeSp * 1.3f * lineSpacingScaleFactor
+        ),
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
     )
@@ -82,24 +77,18 @@ fun SimpleText(
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val density = LocalDensity.current
-    val textUnit =
-        with(density) {
-            val temp = fontSize.toDp()
-            temp.toSp()
-        }
+    val fontSizeSp = with(density) { fontSize.toSp() }
 
     Text(
         modifier = modifier,
         text = text,
-        style =
-            TextStyle(
-                fontFamily = fontFamily,
-                fontWeight = fontWeight,
-//                        fontStyle = FontStyle.Italic,
-                color = fontColor.copy(alpha),
-                fontSize = TextUnit(textUnit.value, TextUnitType.Sp),
-            ),
-        lineHeight = textUnit.value.times(lineSpacingScaleFactor.sp),
+        style = MaterialTheme.typography.bodyMedium.copy(
+            fontFamily = fontFamily,
+            fontWeight = fontWeight,
+            color = fontColor.copy(alpha),
+            fontSize = fontSizeSp,
+            lineHeight = fontSizeSp * 1.3f * lineSpacingScaleFactor
+        ),
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
     )

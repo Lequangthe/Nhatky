@@ -534,8 +534,26 @@ Di chuyển các file vật lý vào đúng cấu trúc thư mục com/quangthe/
     - Thư mục dự án: screenshots/, metadata/, .github/, .opencode/, AGENTS.md, google1f12e741993edc25.html, me/blog/korn123/easydiary/ (rỗng)
 - Git: commit sạch (540 files, -34k/+10k lines), push force lên repo mới
 
+### Xây dựng lại UI Timeline Compose đầy đủ – 19/07/2026
+- File thay đổi: `compose/TimelineActivity.kt` (xây lại từ đầu)
+- UI gồm: TopAppBar (back + search), FilterPanel (search, date range, clear), LazyColumn với TimelineItem (DateHeader + TimelineIndicator + Card), FAB thêm mới, EmptyState, Highlight search
+- Tính năng: xem diary dạng timeline dọc, lọc theo từ khóa + ngày, highlight kết quả tìm kiếm, D-day cho future diary, FAB tạo mới, click item mở DiaryReadingActivity
+- Kiến trúc: hoàn toàn Compose, không kế thừa View cũ, không phụ thuộc XML
+
 ### Fix font quá to: widget 40sp→20sp, alarm 44sp→20sp – 19/07/2026
 - File thay đổi:
     - `res/layout/widget_item_diary_main.xml:33` (40sp → 20sp)
     - `ui/components/SettingCard.kt:1154` (44sp → 20sp)
 - Chi tiết: User phản hồi chữ quá to ở widget ngày tháng và giờ báo thức. Hạ từ 40sp/44sp xuống 20sp chuẩn.
+
+### Chuẩn hoá Font Size & Typography toàn hệ thống – 20/07/2026
+- File thay đổi:
+    - `app/src/main/java/com/quangthe/nhatky/ui/theme/EasyDiaryTheme.kt`
+    - `app/src/main/java/com/quangthe/nhatky/compose/DiaryReadingActivity.kt`
+    - `app/src/main/java/com/quangthe/nhatky/compose/DiaryWritingActivity.kt`
+    - `app/src/main/java/com/quangthe/nhatky/ui/components/DiaryItemCard.kt`
+- Chi tiết:
+    - **AppTheme:** Tích hợp `config.settingFontSize` và `config.lineSpacingScaleFactor` vào `MaterialTheme.typography`. Toàn bộ app giờ đây tự động cập nhật cỡ chữ theo cài đặt.
+    - **Diary Page:** Thứ ngày tháng và Tiêu đề trong màn hình Xem/Viết nhật ký được thiết kế lại: in đậm, to hơn 20% so với nội dung và căn giữa (TextAlign.Center).
+    - **DiaryItemCard:** Chuẩn hoá các thành phần văn bản trong thẻ danh sách để sử dụng Typography của Theme thay vì cỡ chữ cứng (hardcoded sp), đảm bảo tính đồng nhất.
+    - **Bold Style:** Tự động áp dụng FontWeight.Bold cho nội dung nếu người dùng bật cài đặt "Bold Text".

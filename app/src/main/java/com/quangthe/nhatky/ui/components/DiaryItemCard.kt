@@ -122,15 +122,14 @@ fun DiaryItemCard(
                         )
                     },
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.bodySmall,
                 )
 
                 if (StringUtils.isNotEmpty(diary.title)) {
                     Text(
                         text = diary.title!!,
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -141,7 +140,7 @@ fun DiaryItemCard(
                 Text(
                     text = diary.contents.orEmpty(),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    fontSize = 15.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = if (config.enableContentsSummary) config.summaryMaxLines else Int.MAX_VALUE,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -8,16 +8,22 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.quangthe.nhatky.R
+import com.quangthe.nhatky.commons.utils.DateUtils
 import com.quangthe.nhatky.enums.*
 import com.quangthe.nhatky.extensions.*
 import com.quangthe.nhatky.helper.*
@@ -79,23 +85,74 @@ class DiaryWritingActivity : EasyDiaryComposeBaseActivity() {
                 )
             }
         ) { padding ->
-            Column(modifier = Modifier.padding(padding).padding(16.dp)) {
+            val context = LocalContext.current
+            val dateTimeFormat = DateTimeFormat.valueOf(context.config.settingDatetimeFormat)
+            val dateString = DateUtils.getDateTimeStringFromTimeMillis(
+                diary.currentTimeMillis,
+                dateTimeFormat.getDateKey(),
+                dateTimeFormat.getTimeKey()
+            )
+
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = dateString,
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
                 TextField(
                     value = diary.title ?: "",
                     onValueChange = { viewModel.updateTitle(it) },
-                    label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    placeholder = { 
+                        Text(
+                            "Title", 
+                            modifier = Modifier.fillMaxWidth(), 
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.headlineSmall
+                        ) 
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.Center),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    singleLine = true
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
                 TextField(
                     value = diary.contents ?: "",
                     onValueChange = { viewModel.updateContents(it) },
-                    label = { Text("Contents") },
-                    modifier = Modifier.fillMaxWidth().weight(1f)
+                    placeholder = { Text("Contents") },
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
                 )
-                Button(onClick = {
-                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                }) {
+                
+                Button(
+                    onClick = {
+                        photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    },
+                    modifier = Modifier.padding(vertical = 8.dp)
+                ) {
                     Text("Add Photos")
                 }
             }
