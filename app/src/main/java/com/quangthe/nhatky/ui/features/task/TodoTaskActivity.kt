@@ -2,12 +2,15 @@ package com.quangthe.nhatky.ui.features.task
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.quangthe.nhatky.ui.base.EasyDiaryComposeBaseActivity
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.quangthe.nhatky.ui.theme.AppTheme
 import com.quangthe.nhatky.viewmodels.TaskViewModel
+import com.quangthe.nhatky.extensions.*
 
 class TodoTaskActivity : EasyDiaryComposeBaseActivity() {
     private val viewModel: TaskViewModel by viewModels()
@@ -67,6 +72,10 @@ class TodoTaskActivity : EasyDiaryComposeBaseActivity() {
             }
 
             AppTheme {
+                enableEdgeToEdge()
+                applyFullScreenStatusBarTheme(MaterialTheme.colorScheme.surfaceVariant.toArgb())
+                updateNavigationBarAppearance(MaterialTheme.colorScheme.surfaceVariant.toArgb())
+
                 TaskScreen(
                     title = title,
                     onTitleChange = { title = it },
@@ -117,32 +126,41 @@ private fun TaskScreen(
                 title = { },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 },
                 actions = {
                     TextButton(onClick = onSave) {
-                        Icon(Icons.Filled.Check, contentDescription = "Save", tint = Color.White, modifier = Modifier.size(20.dp))
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "Save",
+                            modifier = Modifier.size(20.dp)
+                        )
                         Spacer(Modifier.width(4.dp))
-                        Text("Save", color = Color.White, fontWeight = FontWeight.Medium)
+                        Text(
+                            text = "Save",
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                }
             )
-        },
-        containerColor = Color(0xFFF8FAFC)
+        }
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
                         brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                            colors = listOf(priorityColor.copy(alpha = 0.12f), Color(0xFFF8FAFC)),
+                            colors = listOf(priorityColor.copy(alpha = 0.15f), MaterialTheme.colorScheme.surfaceVariant),
                             startY = 0f,
                             endY = 600f
                         )
@@ -192,11 +210,11 @@ private fun TaskScreen(
                         BasicTextField(
                             value = title,
                             onValueChange = { if (!it.contains("\n")) onTitleChange(it) },
-                            textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color(0xFF1E293B), textAlign = androidx.compose.ui.text.style.TextAlign.Start),
+                            textStyle = MaterialTheme.typography.headlineSmall.copy(color = MaterialTheme.colorScheme.onSurface, textAlign = androidx.compose.ui.text.style.TextAlign.Start),
                             modifier = Modifier.fillMaxWidth(),
                             decorationBox = { inner ->
                                 Box {
-                                    if (title.isEmpty()) Text("What needs to be done?", style = MaterialTheme.typography.headlineSmall.copy(color = Color(0xFFCBD5E1), textAlign = androidx.compose.ui.text.style.TextAlign.Start))
+                                    if (title.isEmpty()) Text("What needs to be done?", style = MaterialTheme.typography.headlineSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Start))
                                     inner()
                                 }
                             }
@@ -206,7 +224,7 @@ private fun TaskScreen(
                         Spacer(Modifier.height(6.dp))
                         Text(
                             "$checkedCount / ${items.size} done",
-                            color = if (checkedCount == items.size) Color(0xFF22C55E) else Color(0xFF94A3B8),
+                            color = if (checkedCount == items.size) Color(0xFF22C55E) else MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 12.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(start = 20.dp)
                         )
                     }
@@ -297,14 +315,14 @@ private fun ChecklistRow(
                     .fillMaxWidth()
                     .padding(start = 44.dp)
                     .height(0.5.dp)
-                    .background(Color(0xFFE2E8F0))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
         }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 2.dp)
-                .background(Color.White.copy(alpha = bgAlpha), RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = bgAlpha), RoundedCornerShape(10.dp))
                 .padding(horizontal = 6.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -312,7 +330,7 @@ private fun ChecklistRow(
                 modifier = Modifier
                     .size(26.dp)
                     .clip(CircleShape)
-                    .background(if (isChecked) Color(0xFF22C55E) else Color(0xFFF1F5F9))
+                    .background(if (isChecked) Color(0xFF22C55E) else MaterialTheme.colorScheme.surfaceVariant)
                     .pointerInput(Unit) { detectTapGestures { onCheck() } },
                 contentAlignment = Alignment.Center
             ) {
@@ -326,12 +344,9 @@ private fun ChecklistRow(
                         drawPath(p, color = Color.White, style = Stroke(width = 2.5f, cap = StrokeCap.Round))
                     }
                 } else {
+                    val circleColor = if (text.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.outlineVariant
                     Canvas(Modifier.size(13.dp)) {
-                        if (text.isEmpty()) {
-                            drawCircle(Color(0xFFCBD5E1), size.width / 2)
-                        } else {
-                            drawCircle(Color(0xFFE2E8F0), size.width / 2)
-                        }
+                        drawCircle(circleColor, size.width / 2)
                     }
                 }
             }
@@ -341,13 +356,13 @@ private fun ChecklistRow(
                     value = text,
                     onValueChange = { onTextChange(it) },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = if (isChecked) Color(0xFF94A3B8) else Color(0xFF334155),
+                        color = if (isChecked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                         textDecoration = if (isChecked) TextDecoration.LineThrough else null
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     decorationBox = { inner ->
                         Box {
-                            if (text.isEmpty()) Text("Type something...", color = Color(0xFFCBD5E1), style = MaterialTheme.typography.bodyLarge)
+                            if (text.isEmpty()) Text("Type something...", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge)
                             inner()
                         }
                     }
@@ -355,7 +370,7 @@ private fun ChecklistRow(
             }
             AnimatedVisibility(visible = !isChecked && text.isNotEmpty()) {
                 IconButton(onClick = onDelete, modifier = Modifier.size(26.dp)) {
-                    Icon(Icons.Filled.Close, contentDescription = "Delete", tint = Color(0xFFCBD5E1), modifier = Modifier.size(14.dp))
+                    Icon(Icons.Filled.Close, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
                 }
             }
         }
