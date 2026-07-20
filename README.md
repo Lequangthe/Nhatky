@@ -1,54 +1,46 @@
-# Easy Diary
+# Easy Diary — Nhật ký
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/unicodeveloper/awesome-opensource-apps)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 [![License][licensesvg]][THIRDPARTY.md]
 
 <img src="screenshots/ic_launcher.png" >
 
-Easy Diary is a diary application optimized for the best user experience.
+## Giới thiệu
 
-## Download
-Download the latest APK from the [Releases](https://github.com/hanjoongcho/aaf-easydiary/releases) page or click the badges below.  
+**Easy Diary — Nhật ký** là bản fork từ dự án [aaf-easydiary](https://github.com/hanjoongcho/aaf-easydiary) của tác giả **hanjoongcho**. 
 
-<a href='https://play.google.com/store/apps/details?id=me.blog.korn123.easydiary'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width="258" height="98"/></a>
-<a href='https://f-droid.org/en/packages/me.blog.korn123.easydiary'><img alt='Get it on F-Droid' src='screenshots/fdroid.png' height="98"/></a>     
+Cảm ơn hanjoongcho vì một ứng dụng nhật ký tuyệt vời, mã nguồn mở, giàu tính năng. Dự án này tiếp nối và phát triển thêm dựa trên nền tảng đó.
 
-## Privacy Policy 
-* [Easy Diary Privacy Policy](https://hanjoongcho.github.io/aaf-easydiary/Privacy)
-  
-## User Manual  
-As of 2023, user manuals are available on Notion and YouTube.  
-* [Easy Diary Manual v0.1](https://spiced-skirt-15c.notion.site/User-Manual-v0-1-909b1fc94f5e40ccb8e8e560911c2e52)
-
-## Developer Documentation
-* [Guide](./docs/README.en.md)
-
-## Star History
-[![Star History Chart](https://api.star-history.com/svg?repos=hanjoongcho/aaf-easydiary,hanjoongcho/aaf-easyphotomap,hanjoongcho/aaf-easypassword&type=Date)](https://star-history.com/#hanjoongcho/aaf-easydiary&hanjoongcho/aaf-easyphotomap&hanjoongcho/aaf-easypassword&Date)
+Những thay đổi chính so với bản gốc:
+- **Migrate giao diện** từ XML View sang Jetpack Compose (15 activity)
+- **Dọn dẹp codebase**: xoá hơn 100 file chết, tách 3 file "quái vật" (>2000 dòng) thành 30 file nhỏ
+- **Tinh gọn**: loại bỏ Calendar, Charts, Widgets, Postcard — giữ core diary mượt mà
+- **Ngôn ngữ**: hỗ trợ tiếng Việt
 
 ## Features
-### ✍ Diary Writing & Editing
-* Create or edit entries using the keyboard or voice recognition.
-### 🔍 Diary Search
-* Quickly retrieve saved entries. Matching keywords are highlighted for easy identification.
-### 📅 Calendar
-* View your entries organized by date using the built-in calendar.
+### ✍ Viết & Sửa nhật ký
+* Gõ bàn phím hoặc nhập bằng giọng nói.
+### 🔍 Tìm kiếm
+* Tra cứu nhanh, highlight từ khoá.
 ### 🕒 Timeline
-* Browse your diary entries in a chronological timeline.
-### 🃏 Diary Postcards
-* Create beautiful postcards using your entries and photos to share with friends. Perfect for anniversaries or holiday greetings.
-### 🔒 Lock
-* Secure your diary with a PIN (Personal Identification Number) or fingerprint recognition.
-### 🎨 Application Themes
-* Choose from 171 color themes or use the color picker to customize text and background colors.
-### 🔤 Fonts
-* Support for custom TTF fonts. Simply add them to the Easy Diary font directory to use them in the app.
-### 📊 Charts
-* Visualize your diary writing habits over time with bar charts.
-###  💾 Backup & Restore
-* Securely back up and restore all content, including attached photos, using Google Drive.
+* Xem nhật ký theo dòng thời gian.
+### 🔒 Khoá
+* Bảo vệ bằng mã PIN hoặc vân tay.
+### 🎨 Chủ đề
+* 171 màu sắc hoặc chọn màu tuỳ ý.
+### 🔤 Font chữ
+* Hỗ trợ font TTF — bỏ file vào thư mục font là dùng.
+### 💾 Backup & Restore
+* Sao lưu và phục hồi toàn bộ dữ liệu.
 
-## Previews (2018 ~ Present)
+## Tải về
+Tải APK mới nhất từ [Releases](https://github.com/Lequangthe/Nhatky/releases).
+
+## User Manual
+* [Easy Diary Manual v0.1](https://spiced-skirt-15c.notion.site/User-Manual-v0-1-909b1fc94f5e40ccb8e8e560911c2e52)
+* [Guide](./docs/README.en.md)
+
+## Previews
 ### Overview
 [![Video Label](https://user-images.githubusercontent.com/7098851/236051294-2977764f-8878-4b3f-a1b2-e66e22daa99a.png)](https://youtu.be/7Lg8o-RHFhY)
 ### Custom Themes
@@ -63,16 +55,11 @@ As of 2023, user manuals are available on Notion and YouTube.
 [![Video Label](https://user-images.githubusercontent.com/7098851/236053735-f5ba6818-9ccd-439d-87ca-81cfbcde76f4.png)](https://youtu.be/DqJadC7YqKQ)
 ### Optimized Card View Design
 [![Video Label](https://user-images.githubusercontent.com/7098851/236054115-895f0795-f50c-4553-b4ce-108ed14f270b.png)](https://youtu.be/T-9l0Q1GmF4)
-### Calendar Start Day
-[![Video Label](https://user-images.githubusercontent.com/7098851/236054537-e768d899-230b-43bd-9bb6-7cc98d9d95d0.png)](https://youtu.be/8JBuV5pHyXY)
 ### Font Settings
 [![Video Label](https://user-images.githubusercontent.com/7098851/236054817-c28de2ce-4ce9-477f-acac-ccaa91067e21.png)](https://youtu.be/o4RUw3lBEtc)
-### Google Drive Integration
-[![Video Label](https://user-images.githubusercontent.com/7098851/236055151-cbb8d709-9d90-4c26-85f1-dc945aaeb118.png)](https://youtu.be/vS9aszhEhwk)
 ### Easter Egg (Custom Symbols)
 [![Video Label](https://user-images.githubusercontent.com/7098851/236055835-87247600-9b85-4a7e-9765-e3741b8c7c0e.png)](https://youtu.be/2vLxdrQTAio)
 
-## Classic Previews (Prior to 2018)
 ### Write Diary (Voice or Keypad)
 <p align="left">
 <img src="screenshots/01_1.jpg">
@@ -95,27 +82,6 @@ As of 2023, user manuals are available on Notion and YouTube.
 <img src="screenshots/04.jpg">
 </p>
 
-### Chart
-<p align="left">
-<img src="screenshots/05.jpg">
-</p>
-
-### Calendar
-<p align="left">
-<img src="screenshots/06.jpg">
-</p>
-
-### Diary Postcards
-<p align="left">
-<img src="screenshots/app_easydiary10_01_en.png" width="288" height="512">
-<img src="screenshots/app_easydiary10_02_en.png" width="288" height="512">
-<img src="screenshots/app_easydiary10_03.png" width="288" height="512">
-<img src="screenshots/app_easydiary10_04.png" width="288" height="512">
-<img src="screenshots/app_easydiary10_05_en.png" width="288" height="512">
-<img src="screenshots/app_easydiary10_06_en.png" width="288" height="512">
-<img src="screenshots/app_easydiary10_07_en.png" width="288" height="512">
-</p>
-
 ### Timeline
 <p align="left">
 <img src="screenshots/08_1.jpg">
@@ -123,118 +89,56 @@ As of 2023, user manuals are available on Notion and YouTube.
 <img src="screenshots/08_3.jpg">
 </p>
 
-### Advanced Settings
-<p align="left">
-<img src="screenshots/app_easydiary09_01_en.png" width="288" height="512">
-<img src="screenshots/app_easydiary09_03_en.png" width="288" height="512">
-<img src="screenshots/app_easydiary09_02_en.png" width="288" height="512">
-<img src="screenshots/app_easydiary06_en.png" width="288" height="512">
-</p>
-
 ## How to Build
-### GMS Flavor
-To build the GMS (Google Mobile Services) flavor, you must configure your Google project settings and manually import weather icons from Flaticon.
-
 ```
-Step 1. Fork or download the 'aaf-easydiary' project.
-Step 2. Import the project into Android Studio.
-Step 3. Configure 'storeFile' and 'storePassword' in your 'local.properties' file.
-       +++++++ local.properties +++++++++++++++++++++++++++++++++++
-       storeFile=your signing key location
-       storePassword=your password
-       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       +++++++ example ++++++++++++++++++++++++++++++++++++++++++++
-       storeFile=C:/dev/android/app-signing.jks
-       storePassword=sjdiSDAss3!@#
-       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       If you do not have a signing key, you can generate one here:
-       https://developer.android.com/studio/publish/app-signing#generate-key
-Step 4. Download SVG images from Flaticon using the link below.
-Step 5. Import the 10 SVG files into your project.
-       Right-click project > New > Vector Asset... (Set Res Directory to 'gms')
-       Resource mapping:
-       clouds-and-sun.svg -> ic_clouds_and_sun.xml
-       umbrella-1.svg     -> ic_umbrella_1.xml
-       sunny.svg          -> ic_sunny.xml
-       stars-2.svg        -> ic_stars_2.xml
-       snowing.svg        -> ic_snowing.xml
-       raindrops.svg      -> ic_raindrops.xml
-       rainbow.svg        -> ic_rainbow.xml
-       night-rain.svg     -> ic_night_rain.xml
-       moon-9.svg         -> ic_moon_9.xml
-       bolt.svg           -> ic_bolt.xml
-Step 6. Enable the Google Drive API:
-       https://console.developers.google.com/
-Step 7. Create an OAuth 2.0 Client ID:
-       https://console.developers.google.com/
-Step 8. Define your OAuth 2.0 Client ID in '/app/src/gms/res/values/keys.xml':
-       <resources>
-           <string name="oauth_request_id_token">YOUR_CLIENT_ID.apps.googleusercontent.com</string>
-       </resources>          
-Step 9. Build the project in Android Studio.
-       a. Build > Select Build Variant
-       b. Select 'gmsDevRelease' and run.
-```
-[Download 'weather-set-2' SVG images from Flaticon](https://www.flaticon.com/packs/weather-set-2)
-
-### FOSS Flavor
-The FOSS (Free and Open Source Software) flavor requires no additional configuration. Note that Google Drive backup is unavailable in this version as it excludes Google Mobile Services. It also uses a simpler set of weather icons.  
-
-*Note: New features are prioritized for the GMS flavor and may be delayed in the FOSS version.*
-
-```
-Step 1. Fork or download the 'aaf-easydiary' project.
-Step 2. Import the project into Android Studio.
-Step 3. Configure 'storeFile' and 'storePassword' in your 'local.properties' file.
-Step 4. Build the project in Android Studio.
-       a. Build > Select Build Variant
-       b. Select 'fossRelease' and run.
+Step 1. Clone hoặc fork dự án.
+Step 2. Import vào Android Studio.
+Step 3. Cấu hình 'storeFile' và 'storePassword' trong 'local.properties':
+         storeFile=đường dẫn file key
+         storePassword=mật khẩu
+Step 4. Build: Build > Select Build Variant > chọn 'devDebug' và run.
 ```
 
 ## Translation
-Special thanks to everyone who helped translate this app. Currently supported languages include:   
+Cảm ơn tất cả những người đã đóng góp bản dịch.
 
-### Korean [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-ko/strings.xml)     
-* hanjoongcho (https://github.com/hanjoongcho)  
+### Korean
+* hanjoongcho (https://github.com/hanjoongcho)
 
-### English [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-en/strings.xml)  
-* Google Translation Robot  
+### English
+* Google Translation Robot
 
-### Japanese [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-ja/strings.xml)   
-* ScratchBuild (https://github.com/ScratchBuild)  
+### Japanese
+* ScratchBuild (https://github.com/ScratchBuild)
 
-### German [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-de/strings.xml)  
-* fulmeek (https://github.com/fulmeek)  
+### German
+* fulmeek (https://github.com/fulmeek)
 
-### Italian [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-it/strings.xml)  
+### Italian
 * FrancescoFernicola (https://github.com/FrancescoFernicola)
 * margherita-martinelli (https://github.com/margherita-martinelli)
-* antcont (https://github.com/antcont)  
+* antcont (https://github.com/antcont)
 
-### French [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-fr/strings.xml)  
-* Larnicone (https://github.com/Larnicone)  
+### French
+* Larnicone (https://github.com/Larnicone)
 
-### Hindi [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-hi/strings.xml)  
-* Prasanta-Hembram (https://github.com/Prasanta-Hembram)  
+### Hindi
+* Prasanta-Hembram (https://github.com/Prasanta-Hembram)
 
-### Santali [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-sat/strings.xml)  
-* Prasanta-Hembram (https://github.com/Prasanta-Hembram)  
+### Santali
+* Prasanta-Hembram (https://github.com/Prasanta-Hembram)
 
-### Russian [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-ru/strings.xml)  
-* stikice (https://github.com/stikice)  
+### Russian
+* stikice (https://github.com/stikice)
 
-### Chinese [(strings.xml)](https://github.com/hanjoongcho/aaf-easydiary/blob/master/app/src/main/res/values-zh-rCN/strings.xml)
-* liuteng-sy (https://github.com/liuteng-sy)  
-* WAining (https://github.com/WAining)  
-
-## Contributing
-* [Contributing](Contributing.md)
+### Chinese
+* liuteng-sy (https://github.com/liuteng-sy)
+* WAining (https://github.com/WAining)
 
 ## License
-* [Easy Diary License][LICENSE]  
+* [Easy Diary License][LICENSE]
 * [Third-Party License][THIRDPARTY.md]
 
 [licensesvg]: https://img.shields.io/badge/License-GPL--3.0-brightgreen.svg
 [LICENSE]: https://github.com/hanjoongcho/aaf-easydiary/blob/master/LICENSE
-[README_ko.md]: https://github.com/hanjoongcho/aaf-easydiary/blob/master/README_ko.md
 [THIRDPARTY.md]: https://github.com/hanjoongcho/aaf-easydiary/blob/master/THIRDPARTY.md
