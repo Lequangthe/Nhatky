@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.quangthe.nhatky.enums.DiaryEntryType
 import com.quangthe.nhatky.extensions.config
-import com.quangthe.nhatky.helper.DiaryComponentConstants
+import com.quangthe.nhatky.core.config.DiaryComponentConstants
 import com.quangthe.nhatky.models.Diary
 import com.quangthe.nhatky.repositories.DiaryRepository
 

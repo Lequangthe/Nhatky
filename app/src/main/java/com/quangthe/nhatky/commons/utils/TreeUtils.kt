@@ -1,6 +1,6 @@
 package com.quangthe.nhatky.commons.utils
 
-import com.quangthe.nhatky.helper.TreeConstants
+import com.quangthe.nhatky.core.config.TreeConstants
 import com.quangthe.nhatky.models.Diary
 
 object TreeUtils {

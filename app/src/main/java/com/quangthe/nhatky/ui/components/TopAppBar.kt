@@ -151,11 +151,12 @@ fun DummyActionBar() {
         title = {},
         colors =
             TopAppBarColors(
-                Color(LocalContext.current.config.primaryColor),
-                Color(LocalContext.current.config.primaryColor),
-                Color.White,
-                Color.White,
-                Color.White,
+                containerColor = Color(LocalContext.current.config.primaryColor),
+                scrolledContainerColor = Color(LocalContext.current.config.primaryColor),
+                navigationIconContentColor = Color.White,
+                titleContentColor = Color.White,
+                actionIconContentColor = Color.White,
+                subtitleContentColor = Color.White,
             ),
     )
 }

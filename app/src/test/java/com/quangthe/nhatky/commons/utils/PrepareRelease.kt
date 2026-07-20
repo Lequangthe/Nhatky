@@ -1,7 +1,7 @@
 package com.quangthe.nhatky.commons.utils
 
 import android.annotation.SuppressLint
-import com.quangthe.nhatky.helper.PrepareReleaseConstants
+import com.quangthe.nhatky.core.config.PrepareReleaseConstants
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.junit.Test

@@ -1,7 +1,7 @@
 package com.quangthe.nhatky.utils
 
 import com.quangthe.nhatky.commons.utils.DateUtils
-import com.quangthe.nhatky.helper.DateUtilConstants
+import com.quangthe.nhatky.core.config.DateUtilConstants
 import org.junit.Assert
 import org.junit.Test
 import java.text.SimpleDateFormat

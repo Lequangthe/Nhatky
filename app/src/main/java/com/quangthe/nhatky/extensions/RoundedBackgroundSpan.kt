@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.text.style.ReplacementSpan
-import com.quangthe.nhatky.helper.ColorConstants
+import com.quangthe.nhatky.core.config.ColorConstants
 
 class RoundedBackgroundSpan(
     private val bgColor: Int, // 기본 배경 색

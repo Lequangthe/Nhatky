@@ -27,18 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
-import kotlinx.coroutines.launch
 import com.quangthe.nhatky.commons.utils.EasyDiaryUtils.summaryDiaryLabel
-import com.quangthe.nhatky.commons.utils.FileNode
-import com.quangthe.nhatky.extensions.config
-import com.quangthe.nhatky.helper.ComposeConstants.ROUNDED_CORNER_SHAPE_SIZE
 import com.quangthe.nhatky.models.Diary
+import com.quangthe.nhatky.ui.models.DiaryMainItem
+import kotlinx.coroutines.launch
 
 @Composable
 fun FastScroll(
@@ -90,151 +86,116 @@ fun FastScroll(
     // --- Fast Scroll 트랙 + 썸 ---
     fun parseBubbleText(item: Any): String =
         when (item) {
-            is Diary -> summaryDiaryLabel(items[firstIndex.value] as Diary)
-            is Pair<*, *> -> (item.first as? FileNode)?.name.orEmpty()
-            else -> item.toString()
+            is DiaryMainItem.DiaryEntry -> item.diary.dateString?.take(7) ?: ""
+            is DiaryMainItem.NoteEntry -> item.note.title ?: ""
+            is DiaryMainItem.TaskEntry -> item.task.title ?: ""
+            is DiaryMainItem.NoteFolderEntry -> item.folder.name
+            is DiaryMainItem.Header -> ""
+            is Diary -> summaryDiaryLabel(item)
+            else -> ""
         }
     Box(
         modifier =
             modifier
                 .fillMaxHeight()
-                .width(30.dp) // 트랙 + 터치 영역
-                .padding(end = 8.dp)
-                .pointerInput(totalItems) {
+                .width(30.dp)
+                .pointerInput(Unit) {
                     detectDragGestures(
-                        onDragStart = {
-                            updateThumbVisible(true)
+                        onDragStart = { startOffset ->
                             updateDraggingThumb(true)
-                            bubbleText = parseBubbleText(items[firstIndex.value])
+                            updateThumbVisible(true)
+                            dragY = startOffset.y
                         },
-                        onDrag = { change, drag ->
-                            dragY = drag.y
+                        onDrag = { change, dragAmount ->
                             change.consume()
-                            thumbY =
-                                (thumbY + drag.y).coerceIn(
-                                    0f,
-                                    containerHeightPx - thumbHeightPx,
-                                )
-                            proportion =
-                                thumbY / (containerHeightPx - thumbHeightPx)
-                            val target =
-                                ((scrollablePx * proportion) / itemHeight)
-                                    .toInt()
-                                    .coerceIn(0, totalItems - 1)
-                            offset = (scrollablePx * proportion) % itemHeight
+                            thumbY += dragAmount.y
+                            val safeThumbY =
+                                thumbY.coerceIn(0f, containerHeightPx - thumbHeightPx)
+                            proportion = safeThumbY / (containerHeightPx - thumbHeightPx)
+                            offset = proportion * scrollablePx
+                            val targetIndex = (offset / itemHeight).toInt()
                             coroutineScope.launch {
-                                listState.scrollToItem(
-                                    target.coerceAtLeast(0),
-                                    offset.toInt(),
-                                )
+                                listState.scrollToItem(targetIndex)
                             }
-                            bubbleText = parseBubbleText(items[target])
+
+                            // 버블 텍스트 업데이트
+                            val itemIdx = targetIndex.coerceIn(0, items.size - 1)
+                            if (items.isNotEmpty()) {
+                                bubbleText = parseBubbleText(items[itemIdx])
+                            }
                         },
                         onDragEnd = {
                             updateDraggingThumb(false)
-                            bubbleText = null
-                            dragEndCallback()
-                        },
-                        onDragCancel = {
-                            updateDraggingThumb(false)
-                            bubbleText = null
                             dragEndCallback()
                         },
                     )
                 },
     ) {
-        if (thumbVisible) {
-            Box(
-                Modifier
-                    .fillMaxHeight()
-                    .width(8.dp)
-                    .padding(end = 4.dp)
-                    .align(Alignment.CenterEnd)
-                    .background(
-                        MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = 0.1f,
-                        ),
-                    ),
-            )
-
-            Box(
-                Modifier
-                    .offset { IntOffset(0, drawThumbY.toInt()) }
-                    .width(12.dp)
-                    .align(Alignment.TopEnd)
-                    .height(with(density) { thumbHeightPx.toDp() })
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-            )
-        }
-    }
-
-    if (showDebugCard) {
-        Card(
-            modifier = Modifier.zIndex(3f),
-            shape = RoundedCornerShape(ROUNDED_CORNER_SHAPE_SIZE.dp),
-            colors =
-                CardDefaults.cardColors(
-                    Color(LocalContext.current.config.backgroundColor).copy(
-                        alpha = 0.8f,
-                    ),
-                ),
-        ) {
-            SimpleText(
-                text =
-                    "" +
-                        "firstIndex: ${firstIndex.value}\n" +
-                        "firstOffset: ${firstOffset.value}\n" +
-                        "offset: $offset\n" +
-                        "proportion: $proportion\n" +
-                        "scrollablePx: $scrollablePx\n" +
-                        "scrolledPx: $scrolledPx\n" +
-                        "progress: $progress\n" +
-                        "baseThumbY: $baseThumbY\n" +
-                        "drawThumbY: $drawThumbY\n" +
-                        "dragY: $dragY\n" +
-                        "thumbY: $thumbY\n" +
-                        "",
-                //                                    alpha = 0.8f,
-                modifier =
-                    Modifier
-//                                        .align(Alignment.TopStart)
-                        .padding(16.dp),
-            )
-        }
-    }
-
-    // --- 버블: ***왼쪽 방향*** ---
-    if (isDraggingThumb && bubbleText != null) {
+        // --- 썸 (Thumb) ---
         Box(
             modifier =
-                modifier
-                    .offset {
-                        val bubbleY =
-                            (drawThumbY - 24f)
-                                .toInt()
-                                .coerceIn(0, containerSize.height - 48)
-                        IntOffset(0, bubbleY)
-                    },
-        ) {
+                Modifier
+                    .offset { IntOffset(0, drawThumbY.toInt()) }
+                    .align(Alignment.TopEnd)
+                    .padding(end = 4.dp)
+                    .width(8.dp)
+                    .height(30.dp)
+                    .background(
+                        color =
+                            if (thumbVisible) {
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                            } else {
+                                Color.Transparent
+                            },
+                        shape = CircleShape,
+                    ),
+        )
+
+        // --- 버블 (Bubble / Tooltip) ---
+        if (isDraggingThumb && bubbleText != null) {
             Card(
-                shape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 16.dp),
+                modifier =
+                    Modifier
+                        .offset {
+                            IntOffset(
+                                x = with(density) { (-100).dp.toPx().toInt() },
+                                y = drawThumbY.toInt() - with(density) { 15.dp.toPx().toInt() },
+                            )
+                        }
+                        .padding(end = 16.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors =
                     CardDefaults.cardColors(
-                        Color(LocalContext.current.config.primaryColor).copy(
-                            alpha = 1.0f,
-                        ),
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
                     ),
-                modifier = Modifier.padding(end = 30.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             ) {
-                SimpleText(
-                    text = bubbleText ?: "",
-                    fontColor = Color.White,
-                    modifier =
-                        Modifier
-                            .padding(16.dp, 8.dp),
-                )
+                Box(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = bubbleText!!,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+fun Text(
+    text: String,
+    style: androidx.compose.ui.text.TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    androidx.compose.material3.Text(
+        text = text,
+        style = style,
+        color = color,
+        modifier = modifier,
+    )
 }

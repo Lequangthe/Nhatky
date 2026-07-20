@@ -1198,4 +1198,5 @@
     <string name="task_symbol_top_order_title">Symbol Order</string>
     <string name="update_location">Update Location</string>
     <string name="view_on_map">View on Map</string>
+    <string name="completed_tasks">Completed</string>
 </resources>

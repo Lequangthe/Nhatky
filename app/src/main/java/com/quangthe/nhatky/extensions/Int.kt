@@ -2,7 +2,7 @@ package com.quangthe.nhatky.extensions
 
 import android.graphics.Color
 import androidx.core.graphics.toColorInt
-import com.quangthe.nhatky.helper.ColorConstants.DARK_GREY
+import com.quangthe.nhatky.core.config.ColorConstants.DARK_GREY
 import java.util.Locale
 import java.util.Random
 

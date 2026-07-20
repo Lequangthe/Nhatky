@@ -168,20 +168,15 @@ dependencies {
     implementation("com.github.woxingxiao:BubbleSeekBar:3.20")
     implementation("com.tbuonomo:dotsindicator:5.1.0")
     implementation("id.zelory:compressor:2.1.1")
-    implementation("com.github.PhilJay:MPAndroidChart:v3.0.3")
     implementation("com.github.chrisbanes:PhotoView:2.1.3")
     implementation("com.github.QuadFlask:colorpicker:0.0.13") // Version Change Prohibited: This is the last version available for download from JitPack.
-    implementation("com.github.amlcurran.showcaseview:library:5.4.3")
-    implementation("com.github.zhpanvip:bannerviewpager:3.5.5")
 //    implementation ("com.github.bumptech.glide:glide:4.16.0") //  Landscapist-Glide includes version 4.16.0
     implementation("com.github.skydoves:landscapist-glide:2.8.3")
     implementation("jp.wasabeef:glide-transformations:4.3.0") {
         exclude(group = "com.github.bumptech.glide", module = "glide")
     }
-    implementation("com.github.ksoichiro:android-observablescrollview:1.6.0")
-    implementation("com.roomorama:caldroid:3.0.1")
     implementation("com.simplecityapps:recyclerview-fastscroll:2.0.1")
-    implementation("org.jasypt:jasypt:1.9.3")
+    testImplementation("org.jasypt:jasypt:1.9.3")
 
     implementation("io.noties.markwon:core:4.6.2")
     implementation("io.noties.markwon:syntax-highlight:4.6.2")
@@ -191,9 +186,6 @@ dependencies {
     implementation("io.noties.markwon:ext-strikethrough:4.6.2")
     implementation("io.noties.markwon:linkify:4.6.2")
     implementation("io.noties:prism4j:2.0.0")
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
-    implementation("com.squareup.retrofit2:converter-scalars:3.0.0")
     kapt("io.noties:prism4j-bundler:2.0.0")
 
 //    debugImplementation ("com.squareup.leakcanary:leakcanary-android:2.7")

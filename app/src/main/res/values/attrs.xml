@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="CalendarItem">
-        <attr name="applyStroke" format="boolean" />
-    </declare-styleable>
     <declare-styleable name="FixedCardView">
         <attr name="fixedAppcompatPadding" format="boolean" />
         <attr name="applyCardBackgroundColor" format="boolean" />

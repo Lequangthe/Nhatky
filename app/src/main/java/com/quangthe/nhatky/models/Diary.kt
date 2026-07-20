@@ -1,8 +1,8 @@
 package com.quangthe.nhatky.models
 
 import com.quangthe.nhatky.commons.utils.DateUtils
-import com.quangthe.nhatky.helper.DateUtilConstants
-import com.quangthe.nhatky.helper.DiaryEditingConstants
+import com.quangthe.nhatky.core.config.DateUtilConstants
+import com.quangthe.nhatky.core.config.DiaryEditingConstants
 import com.quangthe.nhatky.ui.models.DiaryUiModel
 
 /**

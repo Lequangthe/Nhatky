@@ -66,10 +66,10 @@ import com.quangthe.nhatky.R
 import com.quangthe.nhatky.databinding.PartialBubbleSeekBarBinding
 import com.quangthe.nhatky.extensions.config
 import com.quangthe.nhatky.extensions.getFormattedTime
-import com.quangthe.nhatky.helper.ComposeConstants.HORIZONTAL_PADDING
-import com.quangthe.nhatky.helper.ComposeConstants.ROUNDED_CORNER_SHAPE_SIZE
-import com.quangthe.nhatky.helper.ComposeConstants.VERTICAL_PADDING
-import com.quangthe.nhatky.viewmodels.BaseDevViewModel
+import com.quangthe.nhatky.core.config.ComposeConstants.HORIZONTAL_PADDING
+import com.quangthe.nhatky.core.config.ComposeConstants.ROUNDED_CORNER_SHAPE_SIZE
+import com.quangthe.nhatky.core.config.ComposeConstants.VERTICAL_PADDING
+
 
 /***************************************************************************************************
  *   Base Composable
@@ -987,7 +987,7 @@ fun FontSize(
 @Composable
 fun SymbolCard(
     modifier: Modifier,
-    viewModel: BaseDevViewModel,
+    symbol: String = "\uD83D\uDE00",
     fontFamily: FontFamily? =
         if (LocalInspectionMode.current) {
             null
@@ -1020,7 +1020,7 @@ fun SymbolCard(
             modifier = Modifier.padding(15.dp),
         ) {
             SimpleText(
-                text = viewModel.symbol.toString(),
+                text = symbol,
                 fontFamily = fontFamily,
             )
             Image(

@@ -10,4 +10,5 @@ sealed class DiaryMainItem {
     data class NoteEntry(val note: SimpleNote) : DiaryMainItem()
     data class TaskEntry(val task: TodoTask) : DiaryMainItem()
     data class NoteFolderEntry(val folder: NoteFolder) : DiaryMainItem()
+    data class Header(val titleRes: Int, val count: Int = 0) : DiaryMainItem()
 }

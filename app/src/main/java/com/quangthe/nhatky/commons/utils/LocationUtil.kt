@@ -36,9 +36,17 @@ object LocationUtil {
     suspend fun getLatLngFromAddress(context: Context, addressString: String): Address? = withContext(Dispatchers.IO) {
         try {
             val geocoder = Geocoder(context, Locale.getDefault())
-            @Suppress("DEPRECATION")
-            val addresses = geocoder.getFromLocationName(addressString, 1)
-            return@withContext addresses?.firstOrNull()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                suspendCoroutine { continuation ->
+                    geocoder.getFromLocationName(addressString, 1) { addresses ->
+                        continuation.resume(addresses.firstOrNull())
+                    }
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                val addresses = geocoder.getFromLocationName(addressString, 1)
+                addresses?.firstOrNull()
+            }
         } catch (e: Exception) {
             Log.w("LocationUtil", "Failed to get LatLng from address: $e")
             null

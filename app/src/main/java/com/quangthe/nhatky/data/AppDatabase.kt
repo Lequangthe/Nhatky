@@ -15,7 +15,6 @@ import com.quangthe.nhatky.data.entities.*
         NoteFolderEntity::class,
         TodoTaskEntity::class,
         TodoItemEntity::class,
-        ActionLogEntity::class,
         DDayEntity::class
     ],
     version = 1,
@@ -25,7 +24,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun diaryDao(): DiaryDao
     abstract fun noteDao(): NoteDao
     abstract fun taskDao(): TaskDao
-    abstract fun actionLogDao(): ActionLogDao
     abstract fun dDayDao(): DDayDao
 
     companion object {

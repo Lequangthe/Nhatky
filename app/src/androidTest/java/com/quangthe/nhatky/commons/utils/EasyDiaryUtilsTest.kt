@@ -7,8 +7,8 @@ import android.widget.TextView
 import androidx.test.platform.app.InstrumentationRegistry
 import com.simplemobiletools.commons.helpers.SETTING_CARD_VIEW_BACKGROUND_COLOR
 import com.quangthe.nhatky.extensions.preferenceToJsonString
-import com.quangthe.nhatky.helper.AAF_TEST
-import com.quangthe.nhatky.helper.SETTING_THUMBNAIL_SIZE
+import com.quangthe.nhatky.core.config.AAF_TEST
+import com.quangthe.nhatky.core.config.SETTING_THUMBNAIL_SIZE
 import org.junit.Assert.*
 import org.junit.Test
 

@@ -17,8 +17,8 @@ import com.quangthe.nhatky.extensions.getThemeId
 import com.quangthe.nhatky.extensions.hasPermission
 import com.quangthe.nhatky.extensions.pauseLock
 import com.quangthe.nhatky.extensions.updateStatusBarColor
-import com.quangthe.nhatky.helper.SettingConstants
-import com.quangthe.nhatky.helper.TransitionHelper
+import com.quangthe.nhatky.core.config.SettingConstants
+import com.quangthe.nhatky.core.navigation.TransitionHelper
 
 /**
  * Created by CHO HANJOONG on 2017-11-25.
@@ -100,8 +100,6 @@ open class BaseSimpleActivity : AppCompatActivity() {
 //        supportActionBar?.title = Html.fromHtml("<font color='${color.getContrastColor().toHex()}'>${supportActionBar?.title}</font>")
         updateStatusBarColor(color)
 
-        setTaskDescription(ActivityManager.TaskDescription(null, null, color))
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val taskDescription =
                 ActivityManager.TaskDescription
@@ -110,6 +108,7 @@ open class BaseSimpleActivity : AppCompatActivity() {
                     .build()
             setTaskDescription(taskDescription)
         } else {
+            @Suppress("DEPRECATION")
             setTaskDescription(ActivityManager.TaskDescription(null, null, color))
         }
     }

@@ -1,8 +1,8 @@
 package com.quangthe.nhatky.models
 
-import com.quangthe.nhatky.helper.CONTENT_URI_PREFIX
-import com.quangthe.nhatky.helper.FILE_URI_PREFIX
-import com.quangthe.nhatky.helper.WORKING_DIRECTORY
+import com.quangthe.nhatky.core.config.CONTENT_URI_PREFIX
+import com.quangthe.nhatky.core.config.FILE_URI_PREFIX
+import com.quangthe.nhatky.core.config.WORKING_DIRECTORY
 
 /**
  * Created by hanjoong on 2017-06-08.

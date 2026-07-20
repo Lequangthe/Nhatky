@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.quangthe.nhatky.R
 import com.quangthe.nhatky.enums.DiaryEntryType
 import com.quangthe.nhatky.models.Diary
 import com.quangthe.nhatky.models.NoteFolder
@@ -56,6 +57,13 @@ class DiaryMainViewModel : ViewModel() {
 
     private val _diaryItems = MutableStateFlow<List<DiaryMainItem>>(listOf())
     val diaryItems: StateFlow<List<DiaryMainItem>> = _diaryItems.asStateFlow()
+
+    private val _isTimelineMode = MutableStateFlow(false)
+    val isTimelineMode: StateFlow<Boolean> = _isTimelineMode.asStateFlow()
+
+    fun setTimelineMode(isTimeline: Boolean) {
+        _isTimelineMode.value = isTimeline
+    }
 
     private val _noteFolderStack = MutableStateFlow<List<NoteFolder>>(emptyList())
     val noteFolderStack: StateFlow<List<NoteFolder>> = _noteFolderStack.asStateFlow()
@@ -118,13 +126,18 @@ class DiaryMainViewModel : ViewModel() {
                 DiaryEntryType.TASK -> {
                     val tasks = taskRepository.findAllTasks()
                         .filter { query.isNullOrEmpty() || (it.title?.contains(query, ignoreCase = true) == true) }
-                        .sortedWith(
-                            compareBy<TodoTask> { it.isCompleted }
-                                .thenByDescending { it.priority }
-                                .thenByDescending { it.updatedAt }
-                        )
+                    
+                    val activeTasks = tasks.filter { !it.isCompleted }
+                        .sortedWith(compareByDescending<TodoTask> { it.priority }.thenByDescending { it.updatedAt })
+                    
+                    val completedTasks = tasks.filter { it.isCompleted }
+                        .sortedByDescending { it.updatedAt }
 
-                    tasks.forEach { items.add(DiaryMainItem.TaskEntry(it)) }
+                    activeTasks.forEach { items.add(DiaryMainItem.TaskEntry(it)) }
+                    if (completedTasks.isNotEmpty()) {
+                        items.add(DiaryMainItem.Header(R.string.completed_tasks, completedTasks.size))
+                        completedTasks.forEach { items.add(DiaryMainItem.TaskEntry(it)) }
+                    }
                 }
                 else -> {
                     diaryRepository.findDiary(query, entryType = 0).forEach {
@@ -150,6 +163,7 @@ class DiaryMainViewModel : ViewModel() {
                 is DiaryMainItem.NoteEntry -> noteRepository.deleteNote(item.note.sequence)
                 is DiaryMainItem.TaskEntry -> taskRepository.deleteTask(item.task.sequence)
                 is DiaryMainItem.NoteFolderEntry -> noteRepository.deleteFolder(item.folder.id)
+                is DiaryMainItem.Header -> {} // Do nothing
             }
             findDiary(_currentQuery.value)
         }

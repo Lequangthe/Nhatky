@@ -16,6 +16,7 @@ data class TodoTask(
         diary.title = title
         diary.contents = items.joinToString("\n") { (if (it.isChecked) "[X] " else "[ ] ") + it.text }
         diary.currentTimeMillis = createdAt
+        @Suppress("DEPRECATION")
         diary.entryType = 2 // TASK
         return diary
     }

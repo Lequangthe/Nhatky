@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import com.quangthe.nhatky.data.AppDatabase
 import com.quangthe.nhatky.data.mapper.toDomain
 import com.quangthe.nhatky.data.mapper.toEntity
-import com.quangthe.nhatky.helper.EasyDiaryApplication
+import com.quangthe.nhatky.core.application.EasyDiaryApplication
 import com.quangthe.nhatky.models.TodoTask
 
 class TaskRepository {

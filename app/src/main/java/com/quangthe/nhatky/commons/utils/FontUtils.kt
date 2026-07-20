@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import com.quangthe.nhatky.extensions.config
 import com.quangthe.nhatky.extensions.preferencesContains
 import com.quangthe.nhatky.extensions.spToPixelFloatValue
-import com.quangthe.nhatky.helper.*
+import com.quangthe.nhatky.core.config.*
 import com.quangthe.nhatky.views.FixedTextView
 
 /**

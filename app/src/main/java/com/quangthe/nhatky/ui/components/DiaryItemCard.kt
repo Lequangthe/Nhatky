@@ -15,6 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +49,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.compose.AndroidFragment
 import com.bumptech.glide.Glide
-import com.zhpan.bannerview.constants.PageStyle
 import com.quangthe.nhatky.commons.utils.DateUtils
 import com.quangthe.nhatky.commons.utils.EasyDiaryUtils
 import com.quangthe.nhatky.R
@@ -57,8 +57,7 @@ import com.quangthe.nhatky.extensions.darkenColor
 import com.quangthe.nhatky.extensions.dpToPixel
 import com.quangthe.nhatky.extensions.innerCardDarkenFactor
 import com.quangthe.nhatky.extensions.updateDashboardInnerCard
-import com.quangthe.nhatky.fragments.PhotoHighlightFragment
-import com.quangthe.nhatky.helper.PhotoHighlightConstants
+
 import com.quangthe.nhatky.models.Diary
 import com.quangthe.nhatky.models.NoteFolder
 import com.quangthe.nhatky.models.TodoTask
@@ -74,46 +73,210 @@ fun DiaryItemCard(
     itemClickCallback: (diary: Diary) -> Unit,
     itemLongClickCallback: () -> Unit,
     onDeleteClick: (Diary) -> Unit = {},
+    isTimelineMode: Boolean = false,
+    isLast: Boolean = false
 ) {
     val context = LocalContext.current
     val config = context.config
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                onClick = { itemClickCallback(diary) },
-                onLongClick = itemLongClickCallback,
-            ),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    if (diary.currentTimeMillis > System.currentTimeMillis()) {
-                        FutureDiaryBadge(diary.currentTimeMillis, MaterialTheme.colorScheme.onSurface)
+    if (isTimelineMode) {
+        DiaryTimelineItem(
+            diary = diary,
+            isLast = isLast,
+            onClick = { itemClickCallback(diary) }
+        )
+    } else {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = { itemClickCallback(diary) },
+                    onLongClick = itemLongClickCallback,
+                ),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        if (diary.currentTimeMillis > System.currentTimeMillis()) {
+                            FutureDiaryBadge(diary.currentTimeMillis, MaterialTheme.colorScheme.onSurface)
+                        }
+                    }
+                    IconButton(
+                        onClick = { onDeleteClick(diary) },
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
-                IconButton(
-                    onClick = { onDeleteClick(diary) },
-                    modifier = Modifier.padding(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                        modifier = Modifier.size(18.dp)
+
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Text(
+                        text = when (diary.isAllDay) {
+                            true -> DateUtils.getDateStringFromTimeMillis(diary.currentTimeMillis)
+                            false -> DateUtils.getDateTimeStringForceFormatting(
+                                diary.currentTimeMillis, context
+                            )
+                        },
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+
+                    if (StringUtils.isNotEmpty(diary.title)) {
+                        Text(
+                            text = diary.title!!,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = diary.contents.orEmpty(),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = if (config.enableContentsSummary) config.summaryMaxLines else Int.MAX_VALUE,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                if ((diary.photoUris?.size ?: 0) > 0) {
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        factory = { ctx ->
+                            LinearLayout(ctx).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                val photoUris = diary.photoUrisWithEncryptionPolicy()
+                                photoUris?.forEach { photoUri ->
+                                    val imageXY = ctx.dpToPixel(40F)
+                                    val imageView = ImageView(ctx).apply {
+                                        layoutParams = ViewGroup.LayoutParams(imageXY, imageXY)
+                                        scaleType = ImageView.ScaleType.CENTER_CROP
+                                    }
+                                    val photoPath = if (photoUri.isContentUri()) {
+                                        photoUri.photoUri
+                                    } else {
+                                        EasyDiaryUtils.getApplicationDataDirectory(ctx) + photoUri.getFilePath()
+                                    }
+                                    Glide.with(ctx)
+                                        .load(photoPath)
+                                        .apply(
+                                            EasyDiaryUtils.createThumbnailGlideOptions(
+                                                ctx.dpToPixel(8f).toFloat(),
+                                                photoUri.isEncrypt(),
+                                            )
+                                        )
+                                        .into(imageView)
+                                    val contentPadding = ctx.dpToPixel(1F)
+                                    val cardView = com.quangthe.nhatky.views.FixedCardView(ctx).apply {
+                                        ctx.updateDashboardInnerCard(this)
+                                        layoutParams = ViewGroup.MarginLayoutParams(
+                                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                                        )
+                                        radius = ctx.dpToPixel(8f).toFloat()
+                                        fixedAppcompatPadding = true
+                                        setContentPadding(contentPadding, contentPadding, contentPadding, contentPadding)
+                                        addView(imageView)
+                                    }
+                                    addView(cardView)
+                                    val margin = ctx.dpToPixel(4F)
+                                    (cardView.layoutParams as? ViewGroup.MarginLayoutParams)?.setMargins(0, 0, margin, 0)
+                                }
+                            }
+                        },
+                    )
+                }
+
+                if (config.enableLocationInfo && (diary.location != null)) {
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        factory = { ctx ->
+                            LocationContainerView(ctx).apply {
+                                setLocation(diary.location)
+                            }
+                        },
                     )
                 }
             }
+        }
+    }
+}
 
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+@Composable
+fun DiaryTimelineItem(
+    diary: Diary,
+    isLast: Boolean,
+    onClick: () -> Unit,
+) {
+    val context = LocalContext.current
+    val primaryColor = MaterialTheme.colorScheme.primary
+
+    Row(
+        modifier = Modifier.height(IntrinsicSize.Min).padding(vertical = 4.dp)
+    ) {
+        // reuse TimelineIndicator logic
+        Box(modifier = Modifier.width(36.dp).fillMaxHeight()) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val centerX = size.width / 2f
+                val topY = 0f
+                val bottomY = size.height
+                val circleCenterY = 16.dp.toPx()
+
+                if (!isLast) {
+                    drawLine(
+                        color = primaryColor,
+                        start = androidx.compose.ui.geometry.Offset(centerX, topY),
+                        end = androidx.compose.ui.geometry.Offset(centerX, bottomY),
+                        strokeWidth = 2.dp.toPx()
+                    )
+                } else {
+                    drawLine(
+                        color = primaryColor,
+                        start = androidx.compose.ui.geometry.Offset(centerX, topY),
+                        end = androidx.compose.ui.geometry.Offset(centerX, circleCenterY + 6.dp.toPx()),
+                        strokeWidth = 2.dp.toPx()
+                    )
+                }
+
+                drawCircle(
+                    color = primaryColor,
+                    radius = 6.dp.toPx(),
+                    center = androidx.compose.ui.geometry.Offset(centerX, circleCenterY)
+                )
+                drawCircle(
+                    color = Color.White,
+                    radius = 4.dp.toPx(),
+                    center = androidx.compose.ui.geometry.Offset(centerX, circleCenterY)
+                )
+            }
+        }
+
+        Card(
+            modifier = Modifier.weight(1f).padding(end = 8.dp).clickable { onClick() },
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     text = when (diary.isAllDay) {
                         true -> DateUtils.getDateStringFromTimeMillis(diary.currentTimeMillis)
@@ -121,87 +284,30 @@ fun DiaryItemCard(
                             diary.currentTimeMillis, context
                         )
                     },
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                if (StringUtils.isNotEmpty(diary.title)) {
+                if (!diary.title.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = diary.title!!,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = diary.contents.orEmpty(),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = if (config.enableContentsSummary) config.summaryMaxLines else Int.MAX_VALUE,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            if ((diary.photoUris?.size ?: 0) > 0) {
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    factory = { ctx ->
-                        LinearLayout(ctx).apply {
-                            orientation = LinearLayout.HORIZONTAL
-                            val photoUris = diary.photoUrisWithEncryptionPolicy()
-                            photoUris?.forEach { photoUri ->
-                                val imageXY = ctx.dpToPixel(40F)
-                                val imageView = ImageView(ctx).apply {
-                                    layoutParams = ViewGroup.LayoutParams(imageXY, imageXY)
-                                    scaleType = ImageView.ScaleType.CENTER_CROP
-                                }
-                                Glide.with(ctx)
-                                    .load(EasyDiaryUtils.getApplicationDataDirectory(ctx) + photoUri.getFilePath())
-                                    .apply(
-                                        EasyDiaryUtils.createThumbnailGlideOptions(
-                                            ctx.dpToPixel(8f).toFloat(),
-                                            photoUri.isEncrypt(),
-                                        )
-                                    )
-                                    .into(imageView)
-                                val contentPadding = ctx.dpToPixel(1F)
-                                val cardView = com.quangthe.nhatky.views.FixedCardView(ctx).apply {
-                                    ctx.updateDashboardInnerCard(this)
-                                    layoutParams = ViewGroup.MarginLayoutParams(
-                                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                                    )
-                                    radius = ctx.dpToPixel(8f).toFloat()
-                                    fixedAppcompatPadding = true
-                                    setContentPadding(contentPadding, contentPadding, contentPadding, contentPadding)
-                                    addView(imageView)
-                                }
-                                addView(cardView)
-                                val margin = ctx.dpToPixel(4F)
-                                (cardView.layoutParams as? ViewGroup.MarginLayoutParams)?.setMargins(0, 0, margin.toInt(), 0)
-                            }
-                        }
-                    },
-                )
-            }
-
-            if (config.enableLocationInfo && (diary.location != null)) {
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    factory = { ctx ->
-                        LocationContainerView(ctx).apply {
-                            setLocation(diary.location)
-                        }
-                    },
-                )
+                if (!diary.contents.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = diary.contents!!,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    )
+                }
             }
         }
     }
@@ -341,6 +447,25 @@ fun NoteFolderCard(
     }
 }
 
+@Composable
+fun SectionHeader(title: String, count: Int = 0) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        HorizontalDivider(modifier = Modifier.weight(1f), thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.5f))
+        Text(
+            text = if (count > 0) "$title ($count)" else title,
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.Gray,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        HorizontalDivider(modifier = Modifier.weight(1f), thickness = 0.5.dp, color = Color.LightGray.copy(alpha = 0.5f))
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskItemCard(
@@ -350,136 +475,99 @@ fun TaskItemCard(
     toggleTaskCallback: (TodoTask) -> Unit = {},
     onDeleteClick: (TodoTask) -> Unit = {},
 ) {
-    val totalItems = task.items.size
-    val completedItems = task.items.count { it.isChecked }
-    val progress = if (totalItems > 0) completedItems.toFloat() / totalItems else 0f
     val isCompleted = task.isCompleted
+    val titleColor = if (isCompleted) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) 
+                    else MaterialTheme.colorScheme.onSurface
 
-    val priorityColor = when (task.priority) {
-        3 -> Color(0xFFEF4444)
-        2 -> Color(0xFFF97316)
-        1 -> Color(0xFF22C55E)
-        else -> Color(0xFF9CA3AF)
-    }
-
-    val surfaceTonal = if (isCompleted) Color(0xFFF1F5F9) else Color.White
-    val titleColor = if (isCompleted) Color(0xFF94A3B8) else Color(0xFF1E293B)
-
-    Card(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
             .combinedClickable(
                 onClick = { itemClickCallback(task) },
                 onLongClick = itemLongClickCallback,
-            ),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = surfaceTonal),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isCompleted) 0.dp else 1.dp),
-    ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            // Priority bar
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .fillMaxHeight()
-                    .background(
-                        if (task.priority > 0) priorityColor else Color(0xFFE2E8F0),
-                        RoundedCornerShape(topEnd = 0.dp, bottomEnd = 0.dp, topStart = 4.dp, bottomStart = 4.dp)
-                    )
             )
-            Column(modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 14.dp, bottom = 14.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Check circle
-                    Box(
-                        modifier = Modifier
-                            .size(22.dp)
-                            .clip(CircleShape)
-                            .background(if (isCompleted) Color(0xFF22C55E) else Color(0xFFF1F5F9))
-                            .clickable { toggleTaskCallback(task) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isCompleted) {
-                            Canvas(Modifier.size(11.dp)) {
-                                val p = Path().apply {
-                                    moveTo(size.width * 0.2f, size.height * 0.52f)
-                                    lineTo(size.width * 0.42f, size.height * 0.75f)
-                                    lineTo(size.width * 0.8f, size.height * 0.28f)
-                                }
-                                drawPath(p, Color.White, style = Stroke(width = 2.2f, cap = StrokeCap.Round))
-                            }
-                        }
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    Text(
-                        text = task.title ?: "",
-                        color = titleColor,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textDecoration = if (isCompleted) TextDecoration.LineThrough else null,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = { onDeleteClick(task) }, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Close, contentDescription = "Delete", tint = Color(0xFFCBD5E1), modifier = Modifier.size(14.dp))
-                    }
-                }
+            .padding(vertical = 12.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        // Google Style Checkbox (Circular)
+        Box(
+            modifier = Modifier
+                .padding(top = 2.dp)
+                .size(24.dp)
+                .clip(CircleShape)
+                .border(
+                    width = 2.dp,
+                    color = if (isCompleted) MaterialTheme.colorScheme.primary 
+                            else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                    shape = CircleShape
+                )
+                .background(if (isCompleted) MaterialTheme.colorScheme.primary else Color.Transparent)
+                .clickable { toggleTaskCallback(task) },
+            contentAlignment = Alignment.Center
+        ) {
+            if (isCompleted) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
 
-                if (totalItems > 0) {
-                    Spacer(Modifier.height(8.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        task.items.take(3).forEachIndexed { idx, item ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(14.dp)
-                                        .clip(CircleShape)
-                                        .background(if (item.isChecked) Color(0xFF22C55E) else Color(0xFFE2E8F0)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (item.isChecked) {
-                                        Canvas(Modifier.size(8.dp)) {
-                                            val p = Path().apply {
-                                                moveTo(size.width * 0.2f, size.height * 0.5f)
-                                                lineTo(size.width * 0.42f, size.height * 0.75f)
-                                                lineTo(size.width * 0.8f, size.height * 0.3f)
-                                            }
-                                            drawPath(p, Color.White, style = Stroke(width = 1.5f, cap = StrokeCap.Round))
-                                        }
-                                    }
-                                }
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    text = item.text,
-                                    color = if (item.isChecked) Color(0xFF94A3B8) else Color(0xFF475569),
-                                    fontSize = 13.sp,
-                                    textDecoration = if (item.isChecked) TextDecoration.LineThrough else null,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-                    }
+        Spacer(Modifier.width(16.dp))
 
-                    Spacer(Modifier.height(8.dp))
-                    // Progress bar
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
-                        color = if (progress >= 1f) Color(0xFF22C55E) else priorityColor,
-                        trackColor = Color(0xFFE2E8F0),
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = task.title ?: "",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    textDecoration = if (isCompleted) TextDecoration.LineThrough else null,
+                    fontWeight = if (isCompleted) FontWeight.Normal else FontWeight.Medium
+                ),
+                color = titleColor,
+            )
+            
+            if (task.items.isNotEmpty() || task.priority > 0) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
+                    if (task.priority > 0) {
+                        val (label, color) = when (task.priority) {
+                            3 -> "High" to Color(0xFFEF4444)
+                            2 -> "Medium" to Color(0xFFF97316)
+                            else -> "Low" to Color(0xFF22C55E)
+                        }
+                        Icon(
+                            imageVector = Icons.Default.PriorityHigh,
+                            contentDescription = null,
+                            tint = color,
+                            modifier = Modifier.size(12.dp)
+                        )
                         Text(
-                            "$completedItems/$totalItems",
-                            color = Color(0xFF94A3B8),
-                            fontSize = 11.sp,
+                            text = label,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = color,
+                            modifier = Modifier.padding(start = 2.dp, end = 8.dp)
+                        )
+                    }
+                    if (task.items.isNotEmpty()) {
+                        val completedCount = task.items.count { it.isChecked }
+                        Text(
+                            text = "$completedCount/${task.items.size} subtasks",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
                     }
                 }
             }
+        }
+
+        IconButton(onClick = { onDeleteClick(task) }, modifier = Modifier.size(32.dp)) {
+            Icon(
+                imageVector = Icons.Default.DeleteOutline,
+                contentDescription = "Delete",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
@@ -561,37 +649,4 @@ fun DiarySubItemCard(
     }
 }
 
-@Composable
-fun PhotoHighlightCard(
-    modifier: Modifier = Modifier,
-    height: Dp? = null,
-    isVisible: Boolean = false,
-    onVisibilityChanged: (isVisible: Boolean) -> Unit,
-) {
-    AndroidFragment<PhotoHighlightFragment>(
-        modifier =
-            if (isVisible) {
-                height?.let {
-                    modifier
-                        .height(it)
-                        .fillMaxWidth()
-                } ?: run { modifier.fillMaxSize() }
-            } else {
-                modifier
-                    .size(0.dp)
-                    .graphicsLayer(alpha = 0f)
-            },
-        arguments =
-            Bundle().apply {
-                putInt(PhotoHighlightConstants.PAGE_STYLE, PageStyle.MULTI_PAGE_SCALE)
-                putFloat(PhotoHighlightConstants.REVEAL_WIDTH, 20f)
-                putFloat(PhotoHighlightConstants.PAGE_MARGIN, 5f)
-                putBoolean(PhotoHighlightConstants.AUTO_PLAY, true)
-            },
-        onUpdate = { fragment ->
-            fragment.togglePhotoHighlightCallback = { isVisible ->
-                onVisibilityChanged(isVisible)
-            }
-        },
-    )
-}
+

@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.quangthe.nhatky.commons.utils.ColorUtils
 import com.quangthe.nhatky.extensions.config
-import com.quangthe.nhatky.helper.SUPPORT_LANGUAGE_FONT_SIZE_DEFAULT_SP
+import com.quangthe.nhatky.core.config.SUPPORT_LANGUAGE_FONT_SIZE_DEFAULT_SP
 
 // Custom extra colors not present in standard Material3 ColorScheme
 data class AppColors(

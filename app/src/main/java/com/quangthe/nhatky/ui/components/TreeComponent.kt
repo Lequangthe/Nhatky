@@ -94,16 +94,16 @@ import com.quangthe.nhatky.commons.utils.EasyDiaryUtils
 import com.quangthe.nhatky.commons.utils.FileNode
 import com.quangthe.nhatky.commons.utils.FontUtils
 import com.quangthe.nhatky.R
-import com.quangthe.nhatky.compose.DiaryReadingActivity
-import com.quangthe.nhatky.compose.DiaryWritingActivity
+import com.quangthe.nhatky.ui.features.diary.DiaryReadingActivity
+import com.quangthe.nhatky.ui.features.diary.DiaryWritingActivity
 import com.quangthe.nhatky.extensions.config
 import com.quangthe.nhatky.extensions.isVanillaIceCreamPlus
-import com.quangthe.nhatky.helper.ColorConstants.HIGHLIGHT_COLOR
-import com.quangthe.nhatky.helper.ComposeConstants.ROUNDED_CORNER_SHAPE_SIZE
-import com.quangthe.nhatky.helper.DIARY_SEQUENCE
-import com.quangthe.nhatky.helper.SELECTED_SEARCH_QUERY
-import com.quangthe.nhatky.helper.TransitionHelper
-import com.quangthe.nhatky.helper.TransitionHelper.Companion.finishActivityWithTransition
+import com.quangthe.nhatky.core.config.ColorConstants.HIGHLIGHT_COLOR
+import com.quangthe.nhatky.core.config.ComposeConstants.ROUNDED_CORNER_SHAPE_SIZE
+import com.quangthe.nhatky.core.config.DIARY_SEQUENCE
+import com.quangthe.nhatky.core.config.SELECTED_SEARCH_QUERY
+import com.quangthe.nhatky.core.navigation.TransitionHelper
+import com.quangthe.nhatky.core.navigation.TransitionHelper.Companion.finishActivityWithTransition
 import java.util.Calendar
 
 /***************************************************************************************************

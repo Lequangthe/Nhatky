@@ -6,6 +6,6 @@ enum class DiaryEntryType(val value: Int) {
     TASK(2);
 
     companion object {
-        fun fromInt(value: Int) = values().firstOrNull { it.value == value } ?: DIARY
+        fun fromInt(value: Int) = entries.firstOrNull { it.value == value } ?: DIARY
     }
 }

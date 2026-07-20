@@ -23,7 +23,7 @@
     <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
 
     <application
-        android:name=".helper.EasyDiaryApplication"
+        android:name=".core.application.EasyDiaryApplication"
         android:allowBackup="true"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
@@ -32,7 +32,7 @@
         android:supportsRtl="true"
         android:theme="@style/SplashScreenTheme">
         <activity
-            android:name=".compose.DiaryMainActivity"
+            android:name=".ui.features.main.DiaryMainActivity"
             android:exported="false"
             android:launchMode="singleTask"
             android:theme="@style/SplashScreenTheme" />
@@ -43,7 +43,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
-            android:targetActivity=".compose.DiaryMainActivity">
+            android:targetActivity=".ui.features.main.DiaryMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -57,7 +57,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_dark"
             android:roundIcon="@mipmap/ic_launcher_dark_round"
-            android:targetActivity=".compose.DiaryMainActivity">
+            android:targetActivity=".ui.features.main.DiaryMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -71,7 +71,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_green"
             android:roundIcon="@mipmap/ic_launcher_green_round"
-            android:targetActivity=".compose.DiaryMainActivity">
+            android:targetActivity=".ui.features.main.DiaryMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -85,7 +85,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_debug"
             android:roundIcon="@mipmap/ic_launcher_debug_round"
-            android:targetActivity=".compose.DiaryMainActivity">
+            android:targetActivity=".ui.features.main.DiaryMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -95,94 +95,63 @@
         </activity-alias>
 
         <activity
-            android:name=".compose.DiaryWritingActivity"
+            android:name=".ui.features.diary.DiaryWritingActivity"
             android:excludeFromRecents="true"
             android:theme="@style/SplashScreenTheme"
             />
         <activity
-            android:name=".compose.DiaryReadingActivity"
+            android:name=".ui.features.diary.DiaryReadingActivity"
             android:excludeFromRecents="true"
             android:theme="@style/SplashScreenTheme"
             />
         <activity
-            android:name=".compose.DevActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".compose.SettingsActivity"
+            android:name=".ui.features.settings.SettingsActivity"
             android:label=""
             android:theme="@style/SplashScreenTheme" />
         <activity
-            android:name=".compose.CustomizationActivity"
+            android:name=".ui.features.settings.CustomizationActivity"
             android:label="@string/customize_colors"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".compose.StatisticsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".compose.CalendarActivity"
-            android:launchMode="singleTask"
-            android:theme="@style/SplashScreenTheme" />
-        <activity
-            android:name=".compose.PhotoViewPagerActivity"
+            android:name=".ui.features.media.PhotoViewPagerActivity"
             android:hardwareAccelerated="false"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".compose.PostcardActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".compose.PostcardViewerActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".compose.TimelineActivity"
+            android:name=".ui.features.diary.TimelineActivity"
             android:theme="@style/SplashScreenTheme" />
         <activity
-            android:name=".compose.DashboardActivity"
+            android:name=".ui.features.main.DashboardActivity"
             android:theme="@style/SplashScreenTheme" />
         <activity
-            android:name=".compose.PostcardViewPagerActivity"
-            android:hardwareAccelerated="false"
-            android:launchMode="singleTask"
+            android:name=".ui.features.auth.FingerprintLockActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".compose.FingerprintLockActivity"
+            android:name=".ui.features.auth.PinLockActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".compose.PinLockActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".compose.MarkDownViewerActivity"
+            android:name=".ui.features.other.MarkDownViewerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name=".compose.GalleryActivity"
+            android:name=".ui.features.media.GalleryActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".compose.GalleryViewPagerActivity"
+            android:name=".ui.features.media.GalleryViewPagerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".compose.MediaViewerActivity"
+            android:name=".ui.features.media.MediaViewerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".compose.SimpleNoteActivity"
+            android:name=".ui.features.note.SimpleNoteActivity"
             android:theme="@style/Theme.MaterialComponents" />
         <activity
-            android:name=".compose.TodoTaskActivity"
+            android:name=".ui.features.task.TodoTaskActivity"
             android:theme="@style/Theme.MaterialComponents" />
 
 
         <activity
-            android:name=".compose.SelfDevelopmentRepoActivity"
+            android:name=".ui.features.diary.TreeTimelineActivity"
             android:label=""
-            android:launchMode="singleTask"
-            android:theme="@style/Theme.MaterialComponents" />
-        <activity
-            android:name=".compose.TreeTimelineActivity"
-            android:label=""
-            android:theme="@style/Theme.MaterialComponents" />
-        <activity
-            android:name=".compose.Demo1Activity"
-            android:label=""
-            android:launchMode="singleTask"
             android:theme="@style/Theme.MaterialComponents" />
         <!-- End Jetpack Compose Activity -->
 
@@ -196,22 +165,6 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <service android:name=".services.NotificationService" />
-        <service
-            android:name=".services.DiaryMainWidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
 
-        <receiver
-            android:name=".widgets.DiaryMainWidget"
-            android:exported="true"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/simple_app_widget_info" />
-        </receiver>
     </application>
 </manifest>

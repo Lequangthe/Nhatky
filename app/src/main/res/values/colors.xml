@@ -2,12 +2,10 @@
 <resources>
     <!--App Color-->
     <color name="appBackground">@android:color/white</color>
-    <color name="calendarBackground">@android:color/white</color>
     <color name="diaryCountText">#FF33B5E5</color>
     <color name="pinLockText">#272626</color>
 
     <!--Showcase Color-->
-    <color name="showCaseViewBackground">#E570A3B4</color>
 
     <!-- Additional Primary Colors -->
     <color name="md_green_100">#C8E6C9</color>
