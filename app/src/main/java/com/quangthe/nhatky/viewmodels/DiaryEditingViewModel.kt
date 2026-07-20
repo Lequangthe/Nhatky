@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.quangthe.nhatky.models.Diary
+import com.quangthe.nhatky.models.Location
 import com.quangthe.nhatky.models.PhotoUri
 import com.quangthe.nhatky.repositories.DiaryRepository
 
@@ -30,6 +31,10 @@ class DiaryEditingViewModel : ViewModel() {
 
     fun updateContents(contents: String) {
         _diary.value = _diary.value.copy(contents = contents)
+    }
+
+    fun updateLocation(location: Location) {
+        _diary.value = _diary.value.copy(location = location)
     }
 
     fun addPhotoUris(uris: List<PhotoUri>) {

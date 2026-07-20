@@ -123,14 +123,14 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(start = 16.dp, end = 16.dp, top = 40.dp, bottom = 8.dp),
+                                    .padding(start = 16.dp, end = 16.dp, top = 40.dp, bottom = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 TextField(
                                     value = currentQuery,
                                     onValueChange = { viewModel.findDiary(it) },
                                     placeholder = { Text(stringResource(id = R.string.guide_message_2), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)) },
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier.fillMaxWidth(),
                                     singleLine = true,
                                     colors = TextFieldDefaults.colors(
                                         focusedContainerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
@@ -150,10 +150,23 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                         }
                                     }
                                 )
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 IconButton(onClick = {
-                                    TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, Intent(this@DiaryMainActivity, SettingsActivity::class.java))
+                                    TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, Intent(this@DiaryMainActivity, TreeTimelineActivity::class.java))
                                 }) {
-                                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.onPrimary)
+                                    Icon(imageVector = Icons.Default.AccountTree, contentDescription = "Tree View", tint = MaterialTheme.colorScheme.onPrimary)
+                                }
+                                IconButton(onClick = {
+                                    TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, Intent(this@DiaryMainActivity, TimelineActivity::class.java))
+                                }) {
+                                    Icon(Icons.Default.DateRange, contentDescription = "Timeline", tint = MaterialTheme.colorScheme.onPrimary)
                                 }
                                 if (entryType == DiaryEntryType.DIARY) {
                                     IconButton(onClick = {
@@ -169,14 +182,9 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                     }
                                 }
                                 IconButton(onClick = {
-                                    TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, Intent(this@DiaryMainActivity, TimelineActivity::class.java))
+                                    TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, Intent(this@DiaryMainActivity, SettingsActivity::class.java))
                                 }) {
-                                    Icon(Icons.Default.DateRange, contentDescription = "Timeline", tint = MaterialTheme.colorScheme.onPrimary)
-                                }
-                                IconButton(onClick = {
-                                    TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, Intent(this@DiaryMainActivity, TreeTimelineActivity::class.java))
-                                }) {
-                                    Icon(imageVector = Icons.Default.AccountTree, contentDescription = "Tree View", tint = MaterialTheme.colorScheme.onPrimary)
+                                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.onPrimary)
                                 }
                             }
                             TabRow(

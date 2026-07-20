@@ -71,5 +71,9 @@
 - **Layout:** Cập nhật `DiaryMainActivity` để tối ưu padding cho danh sách nhiệm vụ và xử lý Header linh hoạt trên nhiều kích thước màn hình.
 - **Đa ngôn ngữ:** Thêm string resource `completed_tasks` cho tiếng Anh và tiếng Việt.
 
+## Đã hoàn thành: Sửa lỗi UI và Logic cho Tab Nhiệm vụ
+- **UI:** Cập nhật `TaskItemCard` hiển thị tối đa 3 nội dung check-list của nhiệm vụ ngay tại màn hình chính để người dùng dễ theo dõi mà không cần mở chi tiết.
+- **Logic:** Cải thiện `TaskEditDialog` sử dụng `FocusRequester`. Khi người dùng nhấn Enter để xuống dòng trong danh sách check-list, ứng dụng sẽ tự động tạo dòng mới và di chuyển con trỏ (focus) vào dòng vừa tạo.
+
 ## Còn lại
 - Kiểm tra lại toàn bộ app sau khi dọn dẹp.

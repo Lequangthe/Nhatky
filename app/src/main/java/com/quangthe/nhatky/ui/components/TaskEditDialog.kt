@@ -18,6 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -123,10 +125,19 @@ fun TaskEditDialog(
 
                 Box(modifier = Modifier.heightIn(max = 300.dp)) {
                     val listState = rememberLazyListState()
+                    var focusedIndex by remember { mutableIntStateOf(-1) }
+                    val focusRequesters = remember { mutableStateMapOf<Int, FocusRequester>() }
 
                     LaunchedEffect(items.size) {
-                        if (items.isNotEmpty()) {
+                        if (items.isNotEmpty() && focusedIndex == -1) {
                             listState.animateScrollToItem(items.size - 1)
+                        }
+                    }
+
+                    LaunchedEffect(focusedIndex) {
+                        if (focusedIndex != -1) {
+                            focusRequesters[focusedIndex]?.requestFocus()
+                            focusedIndex = -1 // Reset after requesting
                         }
                     }
 
@@ -136,10 +147,13 @@ fun TaskEditDialog(
                     ) {
                         itemsIndexed(items) { index, item ->
                             val prevText = items.getOrNull(index - 1)?.first
+                            val focusRequester = focusRequesters.getOrPut(index) { FocusRequester() }
+
                             ChecklistRow(
                                 text = item.first,
                                 isChecked = item.second,
                                 showDivider = index > 0 && prevText?.isNotEmpty() == true,
+                                focusRequester = focusRequester,
                                 onTextChange = { newText ->
                                     val mutable = items.toMutableList()
                                     if (newText.contains("\n")) {
@@ -147,6 +161,7 @@ fun TaskEditDialog(
                                         mutable[index] = Pair(parts[0], item.second)
                                         mutable.add(index + 1, Pair(parts[1], false))
                                         items = mutable
+                                        focusedIndex = index + 1
                                     } else {
                                         mutable[index] = Pair(newText, item.second)
                                         if (index == items.lastIndex && newText.isNotEmpty()) {
@@ -201,6 +216,7 @@ private fun ChecklistRow(
     text: String,
     isChecked: Boolean,
     showDivider: Boolean,
+    focusRequester: FocusRequester,
     onTextChange: (String) -> Unit,
     onCheck: () -> Unit,
     onDelete: () -> Unit,
@@ -257,7 +273,7 @@ private fun ChecklistRow(
                         color = if (isChecked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                         textDecoration = if (isChecked) TextDecoration.LineThrough else null
                     ),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     decorationBox = { inner ->
                         Box {
                             if (text.isEmpty()) Text(

@@ -549,6 +549,57 @@ fun TaskItemCard(
                     )
                 }
             }
+
+            if (task.items.isNotEmpty()) {
+                Spacer(Modifier.height(4.dp))
+                task.items.take(3).forEach { item ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 1.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = if (item.isChecked) MaterialTheme.colorScheme.primary 
+                                            else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                                    shape = CircleShape
+                                )
+                                .background(if (item.isChecked) MaterialTheme.colorScheme.primary else Color.Transparent),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (item.isChecked) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(8.dp)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = item.text,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                textDecoration = if (item.isChecked) TextDecoration.LineThrough else null
+                            ),
+                            color = if (item.isChecked) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) 
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+                if (task.items.size > 3) {
+                    Text(
+                        text = "+ ${task.items.size - 3} more",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            }
         }
 
         IconButton(onClick = { onDeleteClick(task) }, modifier = Modifier.size(32.dp)) {
