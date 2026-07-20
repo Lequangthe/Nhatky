@@ -149,6 +149,13 @@ class DiaryMainViewModel : ViewModel() {
         }
     }
 
+    fun saveTask(task: TodoTask) {
+        viewModelScope.launch {
+            taskRepository.saveTask(task)
+            findDiary(_currentQuery.value)
+        }
+    }
+
     fun toggleTask(task: TodoTask) {
         viewModelScope.launch {
             taskRepository.toggleTask(task.sequence)

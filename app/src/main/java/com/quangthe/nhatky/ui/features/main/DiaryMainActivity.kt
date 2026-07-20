@@ -66,6 +66,7 @@ import com.quangthe.nhatky.core.config.ComposeConstants.VERTICAL_PADDING
 import com.quangthe.nhatky.core.config.DIARY_SEQUENCE
 import com.quangthe.nhatky.core.navigation.TransitionHelper
 import com.quangthe.nhatky.models.Diary
+import com.quangthe.nhatky.models.TodoTask
 import com.quangthe.nhatky.ui.components.*
 import com.quangthe.nhatky.ui.models.DiaryMainItem
 import com.quangthe.nhatky.ui.theme.AppTheme
@@ -90,6 +91,8 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
             val items: List<DiaryMainItem> by viewModel.diaryItems.collectAsState()
             val entryType by viewModel.entryType.collectAsState()
             val isTimelineMode by viewModel.isTimelineMode.collectAsState()
+            var showTaskDialog by remember { mutableStateOf(false) }
+            var editingTask by remember { mutableStateOf<TodoTask?>(null) }
             val focusManager = LocalFocusManager.current
             val isKeyboardVisible = WindowInsets.isImeVisible
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -209,12 +212,20 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
-                                val intent = when (entryType) {
-                                    DiaryEntryType.NOTE -> Intent(this@DiaryMainActivity, SimpleNoteActivity::class.java)
-                                    DiaryEntryType.TASK -> Intent(this@DiaryMainActivity, TodoTaskActivity::class.java)
-                                    else -> Intent(this@DiaryMainActivity, DiaryWritingActivity::class.java)
+                                when (entryType) {
+                                    DiaryEntryType.TASK -> {
+                                        editingTask = TodoTask()
+                                        showTaskDialog = true
+                                    }
+                                    DiaryEntryType.NOTE -> {
+                                        val intent = Intent(this@DiaryMainActivity, SimpleNoteActivity::class.java)
+                                        TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
+                                    }
+                                    else -> {
+                                        val intent = Intent(this@DiaryMainActivity, DiaryWritingActivity::class.java)
+                                        TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
+                                    }
                                 }
-                                TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
                             },
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -267,6 +278,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                         isDraggingThumbCallback = { isDraggingThumb = it },
                                         hideJobCallback = { hideJob = it },
                                         containerSizeCallback = { containerSize = it },
+                                        onTaskClick = { editingTask = it; showTaskDialog = true },
                                     )
                                 }
                                 else -> {
@@ -284,12 +296,25 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                         isDraggingThumbCallback = { isDraggingThumb = it },
                                         hideJobCallback = { hideJob = it },
                                         containerSizeCallback = { containerSize = it },
+                                        onTaskClick = { editingTask = it; showTaskDialog = true },
                                     )
                                 }
                             }
                         }
                     },
                 )
+
+                if (showTaskDialog && editingTask != null) {
+                    TaskEditDialog(
+                        task = editingTask!!,
+                        onDismiss = { showTaskDialog = false; editingTask = null },
+                        onSave = { task ->
+                            viewModel.saveTask(task)
+                            showTaskDialog = false
+                            editingTask = null
+                        }
+                    )
+                }
             }
         }
     }
@@ -309,6 +334,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
         hideJobCallback: (Job) -> Unit,
         containerSizeCallback: (IntSize) -> Unit,
         itemLongClickCallback: () -> Unit,
+        onTaskClick: (TodoTask) -> Unit = {},
     ) {
         Column(modifier = modifier.fillMaxSize()) {
             val noteFolderStack by viewModel.noteFolderStack.collectAsState()
@@ -387,11 +413,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                 )
                                 is DiaryMainItem.TaskEntry -> TaskItemCard(
                                     task = item.task,
-                                    itemClickCallback = {
-                                        val intent = Intent(this@DiaryMainActivity, TodoTaskActivity::class.java)
-                                        intent.putExtra("sequence", it.sequence)
-                                        TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
-                                    },
+                                    itemClickCallback = { onTaskClick(it) },
                                     itemLongClickCallback = itemLongClickCallback,
                                     toggleTaskCallback = { viewModel.toggleTask(it) },
                                     onDeleteClick = { viewModel.deleteItem(item) }
@@ -446,6 +468,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
         hideJobCallback: (Job) -> Unit,
         containerSizeCallback: (IntSize) -> Unit,
         itemLongClickCallback: () -> Unit,
+        onTaskClick: (TodoTask) -> Unit = {},
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = modifier.weight(0.4f).fillMaxSize()) {}
@@ -526,11 +549,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                     )
                                     is DiaryMainItem.TaskEntry -> TaskItemCard(
                                         task = item.task,
-                                        itemClickCallback = {
-                                            val intent = Intent(this@DiaryMainActivity, TodoTaskActivity::class.java)
-                                            intent.putExtra("sequence", it.sequence)
-                                            TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
-                                        },
+                                        itemClickCallback = { onTaskClick(it) },
                                         itemLongClickCallback = itemLongClickCallback,
                                         toggleTaskCallback = { viewModel.toggleTask(it) },
                                         onDeleteClick = { viewModel.deleteItem(item) }

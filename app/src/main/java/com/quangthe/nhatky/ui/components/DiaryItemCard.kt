@@ -528,35 +528,25 @@ fun TaskItemCard(
                 color = titleColor,
             )
             
-            if (task.items.isNotEmpty() || task.priority > 0) {
+            if (task.priority > 0) {
+                val (label, color) = when (task.priority) {
+                    3 -> "High" to Color(0xFFEF4444)
+                    2 -> "Medium" to Color(0xFFF97316)
+                    else -> "Low" to Color(0xFF22C55E)
+                }
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
-                    if (task.priority > 0) {
-                        val (label, color) = when (task.priority) {
-                            3 -> "High" to Color(0xFFEF4444)
-                            2 -> "Medium" to Color(0xFFF97316)
-                            else -> "Low" to Color(0xFF22C55E)
-                        }
-                        Icon(
-                            imageVector = Icons.Default.PriorityHigh,
-                            contentDescription = null,
-                            tint = color,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = color,
-                            modifier = Modifier.padding(start = 2.dp, end = 8.dp)
-                        )
-                    }
-                    if (task.items.isNotEmpty()) {
-                        val completedCount = task.items.count { it.isChecked }
-                        Text(
-                            text = "$completedCount/${task.items.size} subtasks",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.PriorityHigh,
+                        contentDescription = null,
+                        tint = color,
+                        modifier = Modifier.size(12.dp)
+                    )
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = color,
+                        modifier = Modifier.padding(start = 2.dp, end = 8.dp)
+                    )
                 }
             }
         }
