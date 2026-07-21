@@ -112,7 +112,9 @@
     - **Link:** Sửa lỗi không mở được link. Tự động kiểm tra và thêm tiền tố `https://` nếu thiếu, đảm bảo mở trình duyệt mượt mà.
     - **Vị trí:** Mở ứng dụng Google Maps chính xác tại tọa độ đã lưu khi nhấn vào Thumbnail vị trí.
 - **Tương tác thông minh:** Các tính năng "Xem/Mở" này chỉ kích hoạt ở chế độ **Đọc** để tránh xung đột khi người dùng đang muốn xóa/sửa ở chế độ **Sửa**.
-- **Tinh giản TopBar:** Loại bỏ nút chuyển đổi chế độ xem dư thừa, giúp thanh công cụ gọn gàng và tập trung vào các tính năng chính (Cây, Lịch trình, Cài đặt).
+- **Dữ liệu & Sao lưu:** Triển khai hệ thống sao lưu toàn bộ (Database + Media) vào một file ZIP duy nhất. Cho phép khôi phục (Restore) lại toàn bộ dữ liệu từ file ZIP này.
+- **Sắp xếp Cài đặt:** Cấu trúc lại màn hình Cài đặt thành 4 nhóm: Giao diện, Soạn thảo, Bảo mật và Dữ liệu để người dùng dễ quản lý.
 
 ## Còn lại
-- Kiểm tra lại toàn bộ app sau khi dọn dẹp.
+- Kiểm tra tính tương thích của file sao lưu trên các phiên bản Android khác nhau.
+- Hoàn thiện phần đa ngôn ngữ (strings.xml) cho các mục mới thêm vào.

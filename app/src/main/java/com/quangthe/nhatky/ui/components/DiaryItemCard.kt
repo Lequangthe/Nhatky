@@ -180,11 +180,27 @@ fun MediaThumbnailRow(diary: Diary) {
     val location = diary.location
     
     val links = remember(diary.contents) {
-        val pattern = Pattern.compile("\\[(.*?)\\]\\((.*?)\\)")
-        val matcher = pattern.matcher(diary.contents ?: "")
+        val markdownPattern = java.util.regex.Pattern.compile("\\[(.*?)\\]\\((.*?)\\)")
+        val urlPattern = java.util.regex.Pattern.compile("(https?://[\\w\\d:#@%/;$()~_?\\+-=\\\\.&!]+)", java.util.regex.Pattern.CASE_INSENSITIVE)
+        
+        val contents = diary.contents ?: ""
         val result = mutableListOf<Pair<String, String>>()
-        while (matcher.find()) {
-            result.add(Pair(matcher.group(1) ?: "", matcher.group(2) ?: ""))
+        
+        val markdownMatcher = markdownPattern.matcher(contents)
+        val matchedUrls = mutableSetOf<String>()
+        while (markdownMatcher.find()) {
+            val label = markdownMatcher.group(1) ?: ""
+            val url = markdownMatcher.group(2) ?: ""
+            result.add(Pair(label, url))
+            matchedUrls.add(url)
+        }
+        
+        val urlMatcher = urlPattern.matcher(contents)
+        while (urlMatcher.find()) {
+            val url = urlMatcher.group(1) ?: ""
+            if (!matchedUrls.contains(url)) {
+                result.add(Pair(url.removePrefix("https://").removePrefix("http://").take(20) + "...", url))
+            }
         }
         result
     }

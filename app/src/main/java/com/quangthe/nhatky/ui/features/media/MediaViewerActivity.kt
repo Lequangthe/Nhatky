@@ -94,7 +94,11 @@ class MediaViewerActivity : EasyDiaryComposeBaseActivity() {
                     modifier = Modifier.fillMaxSize(),
                     factory = { ctx ->
                         VideoView(ctx).apply {
-                            setVideoPath(path)
+                            if (path.startsWith("content://")) {
+                                setVideoURI(Uri.parse(path))
+                            } else {
+                                setVideoPath(path)
+                            }
                             val mediaController = MediaController(ctx)
                             mediaController.setAnchorView(this)
                             setMediaController(mediaController)

@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.AdapterView
@@ -27,6 +29,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.quangthe.nhatky.R
 import com.quangthe.nhatky.ui.base.EasyDiaryComposeBaseActivity
 import com.quangthe.nhatky.ui.features.main.DiaryMainActivity
@@ -38,6 +42,7 @@ import com.quangthe.nhatky.core.config.*
 import com.quangthe.nhatky.core.navigation.TransitionHelper
 import com.quangthe.nhatky.core.manager.MediaManager
 import com.quangthe.nhatky.core.export.ExportManager
+import com.quangthe.nhatky.core.export.BackupManager
 import com.quangthe.nhatky.ui.components.*
 import com.quangthe.nhatky.ui.theme.AppTheme
 import com.quangthe.nhatky.ui.features.auth.PinLockActivity
@@ -66,6 +71,39 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
                         makeSnackBar("Export successful!")
                     } else {
                         makeSnackBar("Export failed.")
+                    }
+                }
+            }
+        }
+    }
+
+    private val fullBackupLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                lifecycleScope.launch {
+                    makeSnackBar("Starting full backup...")
+                    val success = BackupManager.createFullBackup(this@SettingsActivity, uri)
+                    if (success) {
+                        makeSnackBar("Backup completed successfully!")
+                    } else {
+                        makeSnackBar("Backup failed.")
+                    }
+                }
+            }
+        }
+    }
+
+    private val restoreLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                lifecycleScope.launch {
+                    makeSnackBar("Starting restoration...")
+                    val success = BackupManager.restoreFullBackup(this@SettingsActivity, uri)
+                    if (success) {
+                        makeSnackBar("Restoration completed! Restarting app...")
+                        startMainActivityWithClearTask()
+                    } else {
+                        makeSnackBar("Restoration failed. Please check the backup file.")
                     }
                 }
             }
@@ -123,8 +161,8 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
                     if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) Modifier.fillMaxWidth(0.5f) else Modifier
                 )
                 
-                // --- SECTION: BASIC SETTINGS ---
-                CategoryTitleCard(title = stringResource(R.string.preferences_category_settings))
+                // --- SECTION: Giao diện ---
+                CategoryTitleCard(title = "Giao diện")
                 FlowRow(maxItemsInEachRow = if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2) {
                     SimpleCard(
                         title = stringResource(R.string.setting_primary_color_title),
@@ -139,6 +177,67 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
                         )
                     }
 
+                    FontSize(
+                        title = stringResource(R.string.font_size_title),
+                        description = stringResource(R.string.font_size_summary),
+                        modifier = cardModifier,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        fontSize = fontSize,
+                        fontFamily = fontFamily,
+                        lineSpacingScaleFactor = lineSpacingScaleFactor,
+                        callbackMinus = {
+                            val newSize = (config.settingFontSize - 5).coerceAtLeast(10f)
+                            config.settingFontSize = newSize
+                            mSettingsViewModel.setFontSize(newSize)
+                        },
+                        callbackPlus = {
+                            val newSize = (config.settingFontSize + 5).coerceAtMost(100f)
+                            config.settingFontSize = newSize
+                            mSettingsViewModel.setFontSize(newSize)
+                        }
+                    )
+
+                    LineSpacing(
+                        title = "Line Spacing: $lineSpacingScaleFactor",
+                        description = "Adjust the vertical distance between lines of text.",
+                        modifier = cardModifier,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        fontSize = fontSize,
+                        fontFamily = fontFamily,
+                        lineSpacingScaleFactor = lineSpacingScaleFactor
+                    ) { factor ->
+                        config.lineSpacingScaleFactor = factor
+                        mSettingsViewModel.setLineSpacingScaleFactor(factor)
+                    }
+
+                    SimpleCard(
+                        title = stringResource(R.string.thumbnail_setting_title),
+                        description = stringResource(R.string.thumbnail_setting_summary),
+                        subDescription = mSettingsViewModel.thumbnailSizeSubDescription.collectAsState().value,
+                        modifier = cardModifier,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        fontFamily = fontFamily
+                    ) {
+                        openThumbnailSettingDialog()
+                    }
+
+                    SwitchCard(
+                        title = stringResource(R.string.enable_card_view_policy_title),
+                        description = stringResource(R.string.enable_card_view_policy_summary),
+                        modifier = cardModifier,
+                        isOn = enableCardViewPolicy,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        fontFamily = fontFamily
+                    ) {
+                        val newValue = !enableCardViewPolicy
+                        config.enableCardViewPolicy = newValue
+                        mSettingsViewModel.setEnableCardViewPolicy(newValue)
+                    }
+                }
+
+                // --- SECTION: Soạn thảo ---
+                CategoryTitleCard(title = "Soạn thảo")
+                FlowRow(maxItemsInEachRow = if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2) {
                     var enableMarkdown by remember { mutableStateOf(config.enableMarkdown) }
                     SwitchCard(
                         title = stringResource(R.string.markdown_setting_title),
@@ -162,28 +261,6 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
                         fontFamily = fontFamily
                     ) {
                         handleLocationToggle(!enableLocationInfo)
-                    }
-
-                    SimpleCard(
-                        title = stringResource(R.string.thumbnail_setting_title),
-                        description = stringResource(R.string.thumbnail_setting_summary),
-                        subDescription = mSettingsViewModel.thumbnailSizeSubDescription.collectAsState().value,
-                        modifier = cardModifier,
-                        enableCardViewPolicy = enableCardViewPolicy,
-                        fontFamily = fontFamily
-                    ) {
-                        openThumbnailSettingDialog()
-                    }
-
-                    SimpleCard(
-                        title = stringResource(R.string.datetime_setting_title),
-                        description = stringResource(R.string.datetime_setting_summary),
-                        subDescription = mSettingsViewModel.datetimeFormatSubDescription.collectAsState().value,
-                        modifier = cardModifier,
-                        enableCardViewPolicy = enableCardViewPolicy,
-                        fontFamily = fontFamily
-                    ) {
-                        openDatetimeFormattingSettingDialog()
                     }
 
                     var enableContentsSummary by remember { mutableStateOf(config.enableContentsSummary) }
@@ -212,34 +289,15 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
                         }
                     }
 
-                    SwitchCard(
-                        title = stringResource(R.string.enable_card_view_policy_title),
-                        description = stringResource(R.string.enable_card_view_policy_summary),
+                    SimpleCard(
+                        title = stringResource(R.string.datetime_setting_title),
+                        description = stringResource(R.string.datetime_setting_summary),
+                        subDescription = mSettingsViewModel.datetimeFormatSubDescription.collectAsState().value,
                         modifier = cardModifier,
-                        isOn = enableCardViewPolicy,
                         enableCardViewPolicy = enableCardViewPolicy,
                         fontFamily = fontFamily
                     ) {
-                        val newValue = !enableCardViewPolicy
-                        config.enableCardViewPolicy = newValue
-                        mSettingsViewModel.setEnableCardViewPolicy(newValue)
-                    }
-
-                    var calendarStartDay by remember { mutableIntStateOf(config.calendarStartDay) }
-                    RadioGroupCard(
-                        title = stringResource(R.string.calendar_start_day_title),
-                        description = stringResource(R.string.calendar_start_day_summary),
-                        modifier = cardModifier,
-                        options = listOf(
-                            mapOf("title" to stringResource(R.string.calendar_start_day_saturday), "key" to CALENDAR_START_DAY_SATURDAY),
-                            mapOf("title" to stringResource(R.string.calendar_start_day_sunday), "key" to CALENDAR_START_DAY_SUNDAY),
-                            mapOf("title" to stringResource(R.string.calendar_start_day_monday), "key" to CALENDAR_START_DAY_MONDAY)
-                        ),
-                        selectedKey = calendarStartDay,
-                        fontFamily = fontFamily
-                    ) { key ->
-                        calendarStartDay = key
-                        config.calendarStartDay = key
+                        openDatetimeFormattingSettingDialog()
                     }
 
                     var calendarSorting by remember { mutableIntStateOf(config.calendarSorting) }
@@ -257,94 +315,9 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
                         calendarSorting = key
                         config.calendarSorting = key
                     }
-
-                    var holdPosition by remember { mutableStateOf(config.holdPositionEnterEditScreen) }
-                    SwitchCard(
-                        title = stringResource(R.string.hold_position_title),
-                        description = stringResource(R.string.hold_position_summary),
-                        modifier = cardModifier,
-                        isOn = holdPosition,
-                        enableCardViewPolicy = enableCardViewPolicy,
-                        fontFamily = fontFamily
-                    ) {
-                        holdPosition = !holdPosition
-                        config.holdPositionEnterEditScreen = holdPosition
-                    }
-
-                    SimpleCard(
-                        title = "Selective Export",
-                        description = "Export your data to a text file based on selection.",
-                        modifier = cardModifier,
-                        enableCardViewPolicy = enableCardViewPolicy,
-                        fontFamily = fontFamily
-                    ) {
-                        showExportSelectionDialog()
-                    }
-
-                    SimpleCard(
-                        title = stringResource(R.string.cleanup_media_title),
-                        description = stringResource(R.string.cleanup_media_summary),
-                        modifier = cardModifier,
-                        enableCardViewPolicy = enableCardViewPolicy,
-                        fontFamily = fontFamily
-                    ) {
-                        handleMediaCleanup()
-                    }
                 }
 
-                // --- SECTION: FONT SETTINGS ---
-                CategoryTitleCard(title = stringResource(R.string.preferences_category_font))
-                FlowRow(maxItemsInEachRow = if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2) {
-                    LineSpacing(
-                        title = "Line Spacing: $lineSpacingScaleFactor",
-                        description = "Adjust the vertical distance between lines of text.",
-                        modifier = cardModifier,
-                        enableCardViewPolicy = enableCardViewPolicy,
-                        fontSize = fontSize,
-                        fontFamily = fontFamily,
-                        lineSpacingScaleFactor = lineSpacingScaleFactor
-                    ) { factor ->
-                        config.lineSpacingScaleFactor = factor
-                        mSettingsViewModel.setLineSpacingScaleFactor(factor)
-                    }
-
-                    FontSize(
-                        title = "Font Size",
-                        description = "Change the size of the text in your diaries.",
-                        modifier = cardModifier,
-                        enableCardViewPolicy = enableCardViewPolicy,
-                        fontSize = fontSize,
-                        fontFamily = fontFamily,
-                        lineSpacingScaleFactor = lineSpacingScaleFactor,
-                        callbackMinus = {
-                            val newSize = (config.settingFontSize - 5).coerceAtLeast(10f)
-                            config.settingFontSize = newSize
-                            mSettingsViewModel.setFontSize(newSize)
-                        },
-                        callbackPlus = {
-                            val newSize = (config.settingFontSize + 5).coerceAtMost(100f)
-                            config.settingFontSize = newSize
-                            mSettingsViewModel.setFontSize(newSize)
-                        }
-                    )
-
-                    var boldStyleEnable by remember { mutableStateOf(config.boldStyleEnable) }
-                    SwitchCard(
-                        title = "Bold Text",
-                        description = "Enable bold style for diary contents.",
-                        modifier = cardModifier,
-                        isOn = boldStyleEnable,
-                        enableCardViewPolicy = enableCardViewPolicy,
-                        fontSize = fontSize,
-                        fontFamily = fontFamily,
-                        lineSpacingScaleFactor = lineSpacingScaleFactor
-                    ) {
-                        boldStyleEnable = !boldStyleEnable
-                        config.boldStyleEnable = boldStyleEnable
-                    }
-                }
-
-                // --- SECTION: LOCK SETTINGS ---
+                // --- SECTION: Bảo mật ---
                 CategoryTitleCard(title = stringResource(R.string.preferences_category_lock))
                 FlowRow(maxItemsInEachRow = if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2) {
                     var aafPinLockEnable by remember { mutableStateOf(config.aafPinLockEnable) }
@@ -369,6 +342,59 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
                         fontFamily = fontFamily
                     ) {
                         handleFingerprintToggle(!fingerprintLockEnable) { fingerprintLockEnable = it }
+                    }
+                }
+
+                // --- SECTION: Dữ liệu & Sao lưu ---
+                CategoryTitleCard(title = stringResource(R.string.preferences_category_backup_restore))
+                FlowRow(maxItemsInEachRow = if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2) {
+                    SimpleCard(
+                        title = stringResource(R.string.backup_full_title),
+                        description = stringResource(R.string.backup_full_description),
+                        modifier = cardModifier,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        fontFamily = fontFamily
+                    ) {
+                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "application/zip"
+                            putExtra(Intent.EXTRA_TITLE, "EasyDiary_FullBackup_${System.currentTimeMillis()}.zip")
+                        }
+                        fullBackupLauncher.launch(intent)
+                    }
+
+                    SimpleCard(
+                        title = stringResource(R.string.restore_full_title),
+                        description = stringResource(R.string.restore_full_description),
+                        modifier = cardModifier,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        fontFamily = fontFamily
+                    ) {
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "application/zip"
+                        }
+                        restoreLauncher.launch(intent)
+                    }
+
+                    SimpleCard(
+                        title = "Xuất văn bản (.txt)",
+                        description = "Xuất dữ liệu của bạn sang tệp văn bản có thể chọn lọc.",
+                        modifier = cardModifier,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        fontFamily = fontFamily
+                    ) {
+                        showExportSelectionDialog()
+                    }
+
+                    SimpleCard(
+                        title = stringResource(R.string.cleanup_media_title),
+                        description = stringResource(R.string.cleanup_media_summary),
+                        modifier = cardModifier,
+                        enableCardViewPolicy = enableCardViewPolicy,
+                        fontFamily = fontFamily
+                    ) {
+                        handleMediaCleanup()
                     }
                 }
 
@@ -431,7 +457,6 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
             val intent = Intent(this, PinLockActivity::class.java)
             intent.putExtra(FingerprintLockConstants.LAUNCHING_MODE, PinLockConstants.ACTIVITY_SETTING)
             startActivity(intent)
-            // Note: callback for UI update will likely happen onResume
         }
     }
 
@@ -444,7 +469,7 @@ class SettingsActivity : EasyDiaryComposeBaseActivity() {
         } else {
             if (config.aafPinLockEnable) {
                 val intent = Intent(this, FingerprintLockActivity::class.java)
-                intent.putExtra(FingerprintLockConstants.LAUNCHING_MODE, FingerprintLockConstants.ACTIVITY_SETTING)
+                intent.putExtra(FingerprintLockConstants.LAUNCHING_MODE, PinLockConstants.ACTIVITY_SETTING)
                 startActivity(intent)
             } else {
                 showAlertDialog(getString(R.string.fingerprint_lock_need_pin_setting))

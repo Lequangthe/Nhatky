@@ -10,6 +10,12 @@ interface NoteDao {
     @Query("SELECT * FROM notes ORDER BY isPinned DESC, updatedAt DESC")
     fun getAllNotes(): Flow<List<SimpleNoteEntity>>
 
+    @Query("SELECT * FROM notes")
+    suspend fun getAllNotesSync(): List<SimpleNoteEntity>
+
+    @Query("SELECT * FROM note_folders")
+    suspend fun getAllFoldersSync(): List<NoteFolderEntity>
+
     @Query("SELECT * FROM notes WHERE :folderId = -1 OR folderId = :folderId ORDER BY isPinned DESC, updatedAt DESC")
     suspend fun getNotesByFolder(folderId: Int): List<SimpleNoteEntity>
 

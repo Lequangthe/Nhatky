@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -73,19 +74,54 @@ class DiaryDetailActivity : EasyDiaryComposeBaseActivity() {
         if (sequence != -1) {
             viewModel.loadDiary(sequence, this)
         } else {
-            intent.getStringExtra("share_text")?.let { viewModel.updateContents(it) }
-            intent.getStringArrayListExtra("share_uris")?.let { paths ->
-                val photoUris = paths.mapNotNull { pathStr ->
-                    val parts = pathStr.split("||", limit = 2)
-                    if (parts.size == 2) com.quangthe.nhatky.models.PhotoUri(parts[0], parts[1]) else null
-                }
-                if (photoUris.isNotEmpty()) viewModel.addPhotoUris(photoUris)
-            }
+            handleSharedData(intent)
         }
 
         setContent {
             AppTheme {
                 DetailScreen(isNewEntry = sequence == -1)
+            }
+        }
+    }
+
+    private fun handleSharedData(intent: Intent) {
+        val sharedText = intent.getStringExtra("shared_text")
+        val sharedUris = if (Build.VERSION.SDK_INT >= 33) {
+            intent.getParcelableArrayListExtra("shared_uris", Uri::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableArrayListExtra<Uri>("shared_uris")
+        }
+        val sharedLocationText = intent.getStringExtra("shared_location_text")
+
+        sharedText?.let { viewModel.updateContents(it) }
+        sharedUris?.let { viewModel.addMediaUris(this, it) }
+        
+        sharedLocationText?.let { text ->
+            lifecycleScope.launch {
+                val location = withContext(Dispatchers.IO) {
+                    // Try to extract coordinates from URL first
+                    val coordPattern = Pattern.compile("@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)")
+                    val matcher = coordPattern.matcher(text)
+                    if (matcher.find()) {
+                        val lat = matcher.group(1)?.toDoubleOrNull() ?: 0.0
+                        val lng = matcher.group(2)?.toDoubleOrNull() ?: 0.0
+                        val address = com.quangthe.nhatky.commons.utils.LocationUtil.getAddressFromLatLng(this@DiaryDetailActivity, lat, lng)
+                        Location(address = address ?: "Shared Location", latitude = lat, longitude = lng)
+                    } else {
+                        // Fallback to geocoder
+                        val latLng = com.quangthe.nhatky.commons.utils.LocationUtil.getLatLngFromAddress(this@DiaryDetailActivity, text)
+                        if (latLng != null) {
+                            val address = com.quangthe.nhatky.commons.utils.LocationUtil.getAddressFromLatLng(this@DiaryDetailActivity, latLng.latitude, latLng.longitude)
+                            Location(address = address ?: text, latitude = latLng.latitude, longitude = latLng.longitude)
+                        } else {
+                            val current = viewModel.diary.value.contents ?: ""
+                            viewModel.updateContents(if (current.isBlank()) text else "$current\n$text")
+                            null
+                        }
+                    }
+                }
+                location?.let { viewModel.updateLocation(it) }
             }
         }
     }
@@ -640,11 +676,29 @@ fun MediaEditPreview(
     
     // Parse links from contents
     val links = remember(diary.contents) {
-        val pattern = Pattern.compile("\\[(.*?)\\]\\((.*?)\\)")
-        val matcher = pattern.matcher(diary.contents ?: "")
+        val markdownPattern = Pattern.compile("\\[(.*?)\\]\\((.*?)\\)")
+        val urlPattern = Pattern.compile("(https?://[\\w\\d:#@%/;$()~_?\\+-=\\\\.&!]+)", Pattern.CASE_INSENSITIVE)
+        
+        val contents = diary.contents ?: ""
         val result = mutableListOf<Pair<String, String>>()
-        while (matcher.find()) {
-            result.add(Pair(matcher.group(1) ?: "", matcher.group(2) ?: ""))
+        
+        // Match Markdown links first
+        val markdownMatcher = markdownPattern.matcher(contents)
+        val matchedUrls = mutableSetOf<String>()
+        while (markdownMatcher.find()) {
+            val label = markdownMatcher.group(1) ?: ""
+            val url = markdownMatcher.group(2) ?: ""
+            result.add(Pair(label, url))
+            matchedUrls.add(url)
+        }
+        
+        // Match plain URLs that are not part of markdown links
+        val urlMatcher = urlPattern.matcher(contents)
+        while (urlMatcher.find()) {
+            val url = urlMatcher.group(1) ?: ""
+            if (!matchedUrls.contains(url)) {
+                result.add(Pair(url.removePrefix("https://").removePrefix("http://").take(20) + "...", url))
+            }
         }
         result
     }
