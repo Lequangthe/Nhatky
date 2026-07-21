@@ -1,5 +1,7 @@
 package com.quangthe.nhatky.ui.components
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -31,6 +33,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +68,14 @@ import com.quangthe.nhatky.models.SimpleNote
 import com.quangthe.nhatky.ui.models.DiaryUiModel
 import com.quangthe.nhatky.views.LocationContainerView
 import org.apache.commons.lang3.StringUtils
+import com.skydoves.landscapist.glide.GlideImage
+import com.skydoves.landscapist.ImageOptions
+import com.quangthe.nhatky.models.PhotoUri
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.layout.ContentScale
+import java.util.regex.Pattern
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -154,66 +165,160 @@ fun DiaryItemCard(
                     )
                 }
 
-                if ((diary.photoUris?.size ?: 0) > 0) {
-                    AndroidView(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        factory = { ctx ->
-                            LinearLayout(ctx).apply {
-                                orientation = LinearLayout.HORIZONTAL
-                                val photoUris = diary.photoUrisWithEncryptionPolicy()
-                                photoUris?.forEach { photoUri ->
-                                    val imageXY = ctx.dpToPixel(40F)
-                                    val imageView = ImageView(ctx).apply {
-                                        layoutParams = ViewGroup.LayoutParams(imageXY, imageXY)
-                                        scaleType = ImageView.ScaleType.CENTER_CROP
-                                    }
-                                    val photoPath = if (photoUri.isContentUri()) {
-                                        photoUri.photoUri
-                                    } else {
-                                        EasyDiaryUtils.getApplicationDataDirectory(ctx) + photoUri.getFilePath()
-                                    }
-                                    Glide.with(ctx)
-                                        .load(photoPath)
-                                        .apply(
-                                            EasyDiaryUtils.createThumbnailGlideOptions(
-                                                ctx.dpToPixel(8f).toFloat(),
-                                                photoUri.isEncrypt(),
-                                            )
-                                        )
-                                        .into(imageView)
-                                    val contentPadding = ctx.dpToPixel(1F)
-                                    val cardView = com.quangthe.nhatky.views.FixedCardView(ctx).apply {
-                                        ctx.updateDashboardInnerCard(this)
-                                        layoutParams = ViewGroup.MarginLayoutParams(
-                                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                                        )
-                                        radius = ctx.dpToPixel(8f).toFloat()
-                                        fixedAppcompatPadding = true
-                                        setContentPadding(contentPadding, contentPadding, contentPadding, contentPadding)
-                                        addView(imageView)
-                                    }
-                                    addView(cardView)
-                                    val margin = ctx.dpToPixel(4F)
-                                    (cardView.layoutParams as? ViewGroup.MarginLayoutParams)?.setMargins(0, 0, margin, 0)
-                                }
-                            }
-                        },
-                    )
-                }
+                MediaThumbnailRow(diary)
 
-                if (config.enableLocationInfo && (diary.location != null)) {
-                    AndroidView(
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun MediaThumbnailRow(diary: Diary) {
+    val context = LocalContext.current
+    val photoUris = diary.photoUrisWithEncryptionPolicy() ?: emptyList()
+    val location = diary.location
+    
+    val links = remember(diary.contents) {
+        val pattern = Pattern.compile("\\[(.*?)\\]\\((.*?)\\)")
+        val matcher = pattern.matcher(diary.contents ?: "")
+        val result = mutableListOf<Pair<String, String>>()
+        while (matcher.find()) {
+            result.add(Pair(matcher.group(1) ?: "", matcher.group(2) ?: ""))
+        }
+        result
+    }
+
+    if (photoUris.isEmpty() && location == null && links.isEmpty()) return
+
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Media (Photos, Videos, Audio)
+        items(photoUris.size) { index ->
+            val photoUri = photoUris[index]
+            val photoPath = remember(photoUri.photoUri) {
+                if (photoUri.isContentUri()) {
+                    photoUri.photoUri
+                } else {
+                    if (photoUri.photoUri?.startsWith("/") == true) {
+                        photoUri.photoUri
+                    } else {
+                        EasyDiaryUtils.getApplicationDataDirectory(context) + photoUri.getFilePath()
+                    }
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                    .clickable {
+                        when {
+                            photoUri.isVideo() || photoUri.isAudio() -> {
+                                val intent = Intent(context, com.quangthe.nhatky.ui.features.media.MediaViewerActivity::class.java).apply {
+                                    putExtra("path", photoPath)
+                                    putExtra("mimeType", photoUri.mimeType)
+                                }
+                                context.startActivity(intent)
+                            }
+                            else -> {
+                                val intent = Intent(context, com.quangthe.nhatky.ui.features.media.PhotoViewPagerActivity::class.java).apply {
+                                    putExtra(com.quangthe.nhatky.core.config.DIARY_SEQUENCE, diary.sequence)
+                                    putExtra(com.quangthe.nhatky.core.config.DIARY_ATTACH_PHOTO_INDEX, index)
+                                }
+                                context.startActivity(intent)
+                            }
+                        }
+                    }
+            ) {
+                GlideImage(
+                    imageModel = { photoPath },
+                    imageOptions = ImageOptions(contentScale = ContentScale.Crop),
+                    modifier = Modifier.fillMaxSize(),
+                    loading = { state ->
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                        }
+                    },
+                    failure = { state ->
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Icon(if (photoUri.isAudio()) Icons.Default.Audiotrack else Icons.Default.BrokenImage, 
+                                null, tint = if (photoUri.isAudio()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+                        }
+                    }
+                )
+                if (photoUri.isVideo()) {
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        factory = { ctx ->
-                            LocationContainerView(ctx).apply {
-                                setLocation(diary.location)
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.PlayArrow, null, tint = Color.White, modifier = Modifier.size(24.dp))
+                    }
+                }
+            }
+        }
+
+        // Links
+        items(links) { link ->
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f))
+                    .border(0.5.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                    .clickable {
+                        var url = link.second
+                        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                            url = "https://$url"
+                        }
+                        try {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                        } catch (e: Exception) {
+                            // Ignore
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Link, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(24.dp))
+            }
+        }
+
+        // Location
+        if (location != null) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .border(0.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                        .clickable {
+                            val lat = location.latitude
+                            val lng = location.longitude
+                            val label = location.address ?: "Location"
+                            val uri = Uri.parse("geo:0,0?q=$lat,$lng(${Uri.encode(label)})")
+                            val mapIntent = Intent(Intent.ACTION_VIEW, uri)
+                            try {
+                                context.startActivity(mapIntent)
+                            } catch (e: Exception) {
+                                val webUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng")
+                                context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
                             }
                         },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }
@@ -276,17 +381,18 @@ fun DiaryTimelineItem(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = when (diary.isAllDay) {
-                        true -> DateUtils.getDateStringFromTimeMillis(diary.currentTimeMillis)
-                        false -> DateUtils.getDateTimeStringForceFormatting(
-                            diary.currentTimeMillis, context
-                        )
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = when (diary.isAllDay) {
+                            true -> DateUtils.getDateStringFromTimeMillis(diary.currentTimeMillis)
+                            false -> DateUtils.getDateTimeStringForceFormatting(
+                                diary.currentTimeMillis, context
+                            )
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                 if (!diary.title.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
@@ -308,6 +414,8 @@ fun DiaryTimelineItem(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
                 }
+                
+                MediaThumbnailRow(diary)
             }
         }
     }

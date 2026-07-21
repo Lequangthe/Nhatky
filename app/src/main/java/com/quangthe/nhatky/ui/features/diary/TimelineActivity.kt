@@ -33,8 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.quangthe.nhatky.R
 import com.quangthe.nhatky.commons.utils.DateUtils
 import com.quangthe.nhatky.ui.base.EasyDiaryComposeBaseActivity
-import com.quangthe.nhatky.ui.features.diary.DiaryWritingActivity
-import com.quangthe.nhatky.ui.features.diary.DiaryReadingActivity
+import com.quangthe.nhatky.ui.features.diary.DiaryDetailActivity
 import com.quangthe.nhatky.extensions.config
 import com.quangthe.nhatky.extensions.getThemeId
 import com.quangthe.nhatky.core.config.DIARY_SEQUENCE
@@ -108,7 +107,7 @@ class TimelineActivity : EasyDiaryComposeBaseActivity() {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        val intent = Intent(this@TimelineActivity, DiaryWritingActivity::class.java)
+                        val intent = Intent(this@TimelineActivity, DiaryDetailActivity::class.java)
                         TransitionHelper.startActivityWithTransition(this@TimelineActivity, intent)
                     },
                     containerColor = primaryColor
@@ -164,7 +163,7 @@ class TimelineActivity : EasyDiaryComposeBaseActivity() {
                                 searchQuery = searchQuery,
                                 primaryColor = primaryColor,
                                 onClick = {
-                                    val intent = Intent(this@TimelineActivity, DiaryReadingActivity::class.java)
+                                    val intent = Intent(this@TimelineActivity, DiaryDetailActivity::class.java)
                                     intent.putExtra(DIARY_SEQUENCE, diary.sequence)
                                     TransitionHelper.startActivityWithTransition(this@TimelineActivity, intent)
                                 }

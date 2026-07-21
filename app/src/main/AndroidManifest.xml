@@ -35,9 +35,30 @@
         android:theme="@style/SplashScreenTheme">
         <activity
             android:name=".ui.features.main.DiaryMainActivity"
-            android:exported="false"
+            android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/SplashScreenTheme" />
+            android:theme="@style/SplashScreenTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
 
         <activity-alias
             android:name=".activities.DiaryMainActivity.EasyDiary"
@@ -97,12 +118,7 @@
         </activity-alias>
 
         <activity
-            android:name=".ui.features.diary.DiaryWritingActivity"
-            android:excludeFromRecents="true"
-            android:theme="@style/SplashScreenTheme"
-            />
-        <activity
-            android:name=".ui.features.diary.DiaryReadingActivity"
+            android:name=".ui.features.diary.DiaryDetailActivity"
             android:excludeFromRecents="true"
             android:theme="@style/SplashScreenTheme"
             />

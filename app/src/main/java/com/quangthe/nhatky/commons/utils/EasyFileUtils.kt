@@ -74,9 +74,31 @@ fun queryName(
     var name: String? = null
     returnCursor?.let {
         val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        it.moveToFirst()
-        name = returnCursor.getString(nameIndex)
+        if (nameIndex != -1) {
+            it.moveToFirst()
+            name = returnCursor.getString(nameIndex)
+        }
         returnCursor.close()
     }
     return name ?: UUID.randomUUID().toString()
+}
+
+fun copyUriToInternalStorage(context: Context, uri: Uri, destSubDir: String): String? {
+    val contentResolver = context.contentResolver
+    val fileName = queryName(contentResolver, uri)
+    val destDir = File(getApplicationDataDirectory(context) + destSubDir)
+    if (!destDir.exists()) destDir.mkdirs()
+
+    val destFile = File(destDir, "${UUID.randomUUID()}_$fileName")
+    return try {
+        contentResolver.openInputStream(uri)?.use { input ->
+            destFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+        destFile.absolutePath
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }

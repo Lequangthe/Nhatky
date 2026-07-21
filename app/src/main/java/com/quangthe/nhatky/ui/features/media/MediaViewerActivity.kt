@@ -38,10 +38,19 @@ class MediaViewerActivity : EasyDiaryComposeBaseActivity() {
         val path = intent.getStringExtra("path") ?: ""
         val mimeType = intent.getStringExtra("mimeType") ?: ""
 
-        val file = File(path)
-        if (!file.exists()) {
+        if (path.isEmpty()) {
             finish()
             return
+        }
+
+        // Support both file paths and content URIs
+        val isContentUri = path.startsWith("content://")
+        if (!isContentUri) {
+            val file = File(path)
+            if (!file.exists()) {
+                finish()
+                return
+            }
         }
 
         window.statusBarColor = Color.BLACK

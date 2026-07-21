@@ -1,6 +1,9 @@
 package com.quangthe.nhatky.ui.features.main
 
+import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -47,15 +50,23 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.lifecycleScope
 import com.simplemobiletools.commons.extensions.toast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.appcompat.app.AlertDialog
 import com.quangthe.nhatky.R
+import com.quangthe.nhatky.commons.utils.copyUriToInternalStorage
+import com.quangthe.nhatky.core.config.DIARY_AUDIO_DIRECTORY
+import com.quangthe.nhatky.core.config.DIARY_PHOTO_DIRECTORY
+import com.quangthe.nhatky.core.config.DIARY_VIDEO_DIRECTORY
+import com.quangthe.nhatky.models.PhotoUri
+import com.quangthe.nhatky.repositories.DiaryRepository
 import com.quangthe.nhatky.ui.base.EasyDiaryComposeBaseActivity
 import com.quangthe.nhatky.ui.features.note.SimpleNoteActivity
 import com.quangthe.nhatky.ui.features.task.TodoTaskActivity
-import com.quangthe.nhatky.ui.features.diary.DiaryWritingActivity
-import com.quangthe.nhatky.ui.features.diary.DiaryReadingActivity
+import com.quangthe.nhatky.ui.features.diary.DiaryDetailActivity
 import com.quangthe.nhatky.ui.features.diary.TimelineActivity
 import com.quangthe.nhatky.ui.features.diary.TreeTimelineActivity
 import com.quangthe.nhatky.ui.features.settings.SettingsActivity
@@ -168,19 +179,6 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                 }) {
                                     Icon(Icons.Default.DateRange, contentDescription = "Timeline", tint = MaterialTheme.colorScheme.onPrimary)
                                 }
-                                if (entryType == DiaryEntryType.DIARY) {
-                                    IconButton(onClick = {
-                                        val nextMode = if (isTimelineMode) 0 else 1
-                                        config.diaryViewMode = nextMode
-                                        viewModel.setTimelineMode(nextMode == 1)
-                                    }) {
-                                        Icon(
-                                            imageVector = if (isTimelineMode) Icons.AutoMirrored.Filled.List else Icons.Default.DateRange,
-                                            contentDescription = "View Mode",
-                                            tint = MaterialTheme.colorScheme.onPrimary
-                                        )
-                                    }
-                                }
                                 IconButton(onClick = {
                                     TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, Intent(this@DiaryMainActivity, SettingsActivity::class.java))
                                 }) {
@@ -230,7 +228,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                         TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
                                     }
                                     else -> {
-                                        val intent = Intent(this@DiaryMainActivity, DiaryWritingActivity::class.java)
+                                        val intent = Intent(this@DiaryMainActivity, DiaryDetailActivity::class.java)
                                         TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
                                     }
                                 }
@@ -325,6 +323,154 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                 }
             }
         }
+
+        handleSendIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleSendIntent(intent)
+    }
+
+    private fun handleSendIntent(intent: Intent?) {
+        if (intent == null) return
+        when (intent.action) {
+            Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE -> {
+                val shareText = intent.getStringExtra(Intent.EXTRA_TEXT)
+                val shareUris = when {
+                    intent.action == Intent.ACTION_SEND -> {
+                        val uri = if (Build.VERSION.SDK_INT >= 33) {
+                            intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                        }
+                        uri?.toString()?.let { listOf(it) }
+                    }
+                    else -> {
+                        val list = if (Build.VERSION.SDK_INT >= 33) {
+                            intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+                        }
+                        list?.map { it.toString() }
+                    }
+                }
+
+                if (shareText.isNullOrBlank() && shareUris.isNullOrEmpty()) return
+
+                showShareChoiceDialog(shareText, shareUris)
+            }
+        }
+    }
+
+    private fun showShareChoiceDialog(text: String?, uris: List<String>?) {
+        val options = arrayOf("Thêm vào nhật ký hiện có", "Tạo nhật ký mới")
+        AlertDialog.Builder(this)
+            .setTitle("Chia sẻ tới Nhật ký")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> appendToExistingDiary(text, uris)
+                    1 -> openNewDiary(text, uris)
+                }
+            }
+            .setNegativeButton("Huỷ", null)
+            .show()
+    }
+
+    private fun appendToExistingDiary(shareText: String?, shareUris: List<String>?) {
+        lifecycleScope.launch {
+            val repo = DiaryRepository()
+            val diaries = withContext(Dispatchers.IO) {
+                repo.findDiary(null, entryType = 0).take(20)
+            }
+            if (diaries.isEmpty()) {
+                toast("Chưa có nhật ký nào")
+                return@launch
+            }
+
+            val titles = diaries.map { d -> (d.title?.take(40))?.takeIf { t -> t.isNotBlank() } ?: "(không tiêu đề)" }
+            AlertDialog.Builder(this@DiaryMainActivity)
+                .setTitle("Chọn nhật ký")
+                .setItems(titles.toTypedArray()) { _: DialogInterface?, which: Int ->
+                    lifecycleScope.launch {
+                        appendContent(diaries[which].sequence, shareText, shareUris)
+                    }
+                }
+                .setPositiveButton("Huỷ", null as DialogInterface.OnClickListener)
+                .show()
+        }
+    }
+
+    private suspend fun appendContent(sequence: Int, shareText: String?, shareUris: List<String>?) {
+        withContext(Dispatchers.IO) {
+            val repo = DiaryRepository()
+            val diary = repo.findDiaryBy(sequence) ?: return@withContext
+
+            val newPhotos = shareUris?.mapNotNull { uriStr ->
+                try {
+                    val uri = Uri.parse(uriStr)
+                    val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
+                    val subDir = when {
+                        mimeType.startsWith("video") -> DIARY_VIDEO_DIRECTORY
+                        mimeType.startsWith("audio") -> DIARY_AUDIO_DIRECTORY
+                        else -> DIARY_PHOTO_DIRECTORY
+                    }
+                    val internalPath = copyUriToInternalStorage(this@DiaryMainActivity, uri, subDir)
+                    if (internalPath != null) PhotoUri(internalPath, mimeType) else null
+                } catch (e: Exception) { null }
+            }
+
+            val updatedContents = when {
+                shareText.isNullOrBlank() -> diary.contents
+                diary.contents.isNullOrBlank() -> shareText
+                else -> "${diary.contents}\n$shareText"
+            }
+            val updatedPhotos = (diary.photoUris?.toMutableList() ?: mutableListOf()).apply {
+                newPhotos?.forEach { if (none { p -> p.photoUri == it.photoUri }) add(it) }
+            }
+
+            repo.updateDiary(diary.copy(contents = updatedContents, photoUris = updatedPhotos))
+        }
+        runOnUiThread {
+            toast("Đã thêm vào nhật ký")
+            viewModel.findDiary()
+        }
+    }
+
+    private fun openNewDiary(shareText: String?, shareUris: List<String>?) {
+        val intent = Intent(this, DiaryDetailActivity::class.java).apply {
+            putExtra(DIARY_SEQUENCE, -1)
+            if (shareText != null) putExtra("share_text", shareText)
+        }
+
+        if (shareUris.isNullOrEmpty()) {
+            startActivity(intent)
+            return
+        }
+
+        lifecycleScope.launch {
+            val internalPaths = withContext(Dispatchers.IO) {
+                shareUris.mapNotNull { uriStr ->
+                    try {
+                        val uri = Uri.parse(uriStr)
+                        val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
+                        val subDir = when {
+                            mimeType.startsWith("video") -> DIARY_VIDEO_DIRECTORY
+                            mimeType.startsWith("audio") -> DIARY_AUDIO_DIRECTORY
+                            else -> DIARY_PHOTO_DIRECTORY
+                        }
+                        copyUriToInternalStorage(this@DiaryMainActivity, uri, subDir)?.let { "$it||$mimeType" }
+                    } catch (e: Exception) { null }
+                }
+            }
+            if (internalPaths.isNotEmpty()) {
+                intent.putStringArrayListExtra("share_uris", ArrayList(internalPaths))
+            }
+            startActivity(intent)
+        }
     }
 
     @Composable
@@ -397,7 +543,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                     isTimelineMode = isTimelineMode,
                                     isLast = index == items.size - 1,
                                     itemClickCallback = {
-                                        val intent = Intent(this@DiaryMainActivity, DiaryReadingActivity::class.java)
+                                        val intent = Intent(this@DiaryMainActivity, DiaryDetailActivity::class.java)
                                         intent.putExtra(DIARY_SEQUENCE, it.sequence)
                                         TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
                                     },
@@ -533,7 +679,7 @@ class DiaryMainActivity : EasyDiaryComposeBaseActivity() {
                                         isTimelineMode = isTimelineMode,
                                         isLast = index == items.size - 1,
                                         itemClickCallback = {
-                                            val intent = Intent(this@DiaryMainActivity, DiaryReadingActivity::class.java)
+                                            val intent = Intent(this@DiaryMainActivity, DiaryDetailActivity::class.java)
                                             intent.putExtra(DIARY_SEQUENCE, it.sequence)
                                             TransitionHelper.startActivityWithTransition(this@DiaryMainActivity, intent)
                                         },

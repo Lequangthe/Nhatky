@@ -94,8 +94,7 @@ import com.quangthe.nhatky.commons.utils.EasyDiaryUtils
 import com.quangthe.nhatky.commons.utils.FileNode
 import com.quangthe.nhatky.commons.utils.FontUtils
 import com.quangthe.nhatky.R
-import com.quangthe.nhatky.ui.features.diary.DiaryReadingActivity
-import com.quangthe.nhatky.ui.features.diary.DiaryWritingActivity
+import com.quangthe.nhatky.ui.features.diary.DiaryDetailActivity
 import com.quangthe.nhatky.extensions.config
 import com.quangthe.nhatky.extensions.isVanillaIceCreamPlus
 import com.quangthe.nhatky.core.config.ColorConstants.HIGHLIGHT_COLOR
@@ -297,7 +296,7 @@ fun TreeContent(
                                     val detailIntent =
                                         Intent(
                                             context,
-                                            DiaryReadingActivity::class.java,
+                                            DiaryDetailActivity::class.java,
                                         )
                                     detailIntent.putExtra(
                                         DIARY_SEQUENCE,
@@ -374,7 +373,7 @@ fun TreeContent(
                             activity,
                             Intent(
                                 context,
-                                DiaryWritingActivity::class.java,
+                                DiaryDetailActivity::class.java,
                             ),
                         )
                     },
