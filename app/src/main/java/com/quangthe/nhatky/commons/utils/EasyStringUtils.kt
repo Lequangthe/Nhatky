@@ -17,11 +17,32 @@ val easyDiaryMimeTypeAll: Array<String?>
     }
 
 fun summaryDiaryLabel(diary: Diary): String {
-    return if (diary.title.isNullOrEmpty()) diary.contents!!.lines()[0] else diary.title!!
+    val title = diary.title
+    return if (!title.isNullOrBlank()) {
+        title
+    } else {
+        val firstLine = diary.contents?.lines()?.firstOrNull { it.isNotBlank() }
+        if (!firstLine.isNullOrBlank()) {
+            firstLine
+        } else if (diary.location != null) {
+            diary.location?.address ?: "Vị trí đã chia sẻ"
+        } else {
+            "Nhật ký không tiêu đề"
+        }
+    }
 }
 
 fun summaryDiaryLabel(diary: DiaryUiModel): String {
-    return if (diary.title.isNullOrEmpty()) diary.contents!!.lines()[0] else diary.title!!
+    return if (diary.title.isNotBlank()) {
+        diary.title
+    } else {
+        val firstLine = diary.contents.lines().firstOrNull { it.isNotBlank() }
+        if (!firstLine.isNullOrBlank()) {
+            firstLine
+        } else {
+            "Nhật ký không tiêu đề"
+        }
+    }
 }
 
 fun searchWordIndexes(

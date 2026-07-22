@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -83,7 +84,9 @@ class TreeTimelineActivity : EasyDiaryComposeBaseActivity() {
             treeViewModel.setTreeData(TreeUtils.toggleChildren(treeData, selectedNode))
         }
 
-        fetchDiary()
+        LaunchedEffect(currentQuery) {
+            fetchDiary()
+        }
 
         AppTheme {
             Scaffold(

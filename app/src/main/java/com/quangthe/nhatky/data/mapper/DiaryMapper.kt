@@ -1,10 +1,13 @@
 package com.quangthe.nhatky.data.mapper
 
+import android.util.Log
 import com.quangthe.nhatky.data.entities.DiaryEntity
 import com.quangthe.nhatky.data.entities.PhotoUriEntity
 import com.quangthe.nhatky.models.Diary
 import com.quangthe.nhatky.models.Location
 import com.quangthe.nhatky.models.PhotoUri
+
+private const val TAG = "DiaryMapper"
 
 fun DiaryEntity.toDomain(photoUris: List<PhotoUriEntity>): Diary {
     val diary = Diary()
@@ -17,7 +20,11 @@ fun DiaryEntity.toDomain(photoUris: List<PhotoUriEntity>): Diary {
     diary.isEncrypt = this.isEncrypt
     diary.encryptKeyHash = this.encryptKeyHash
     diary.isHoliday = this.isHoliday
-    diary.location = Location(this.address, this.latitude, this.longitude)
+    if (this.address != null || this.latitude != 0.0 || this.longitude != 0.0) {
+        diary.location = Location(this.address, this.latitude, this.longitude)
+    } else {
+        Log.w(TAG, "toDomain: bỏ qua location rác (lat=${this.latitude}, lng=${this.longitude}, address=${this.address}) cho diary seq=${this.sequence}")
+    }
     
     val list = mutableListOf<PhotoUri>()
     photoUris.forEach { 

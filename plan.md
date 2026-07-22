@@ -114,6 +114,7 @@
 - **Tương tác thông minh:** Các tính năng "Xem/Mở" này chỉ kích hoạt ở chế độ **Đọc** để tránh xung đột khi người dùng đang muốn xóa/sửa ở chế độ **Sửa**.
 - **Dữ liệu & Sao lưu:** Triển khai hệ thống sao lưu toàn bộ (Database + Media) vào một file ZIP duy nhất. Cho phép khôi phục (Restore) lại toàn bộ dữ liệu từ file ZIP này.
 - **Sắp xếp Cài đặt:** Cấu trúc lại màn hình Cài đặt thành 4 nhóm: Giao diện, Soạn thảo, Bảo mật và Dữ liệu để người dùng dễ quản lý.
+- **Sửa lỗi Crash (Tree View):** Đã khắc phục lỗi `NullPointerException` khi xem dạng cây thư mục. Lỗi xảy ra do app cố gắng truy cập nội dung nhật ký trống (ví dụ nhật ký chỉ có vị trí hoặc ảnh mà không có chữ). Đã thêm nhãn mặc định "Nhật ký không tiêu đề" để đảm bảo ổn định.
 
 ## Còn lại
 - Kiểm tra tính tương thích của file sao lưu trên các phiên bản Android khác nhau.
